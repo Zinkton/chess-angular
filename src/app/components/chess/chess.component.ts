@@ -32,7 +32,7 @@ export class ChessComponent {
     }
 
     clearBoard() {
-        this.gameState.board = Constants.ClearBoard;
+        this.gameState.board = Constants.ClearBoard.slice();
     }
 
     initGameState(): GameState {
@@ -43,7 +43,7 @@ export class ChessComponent {
         gameState.isBlackQueenCastleAllowed = true;
         gameState.isWhiteToMove = true;
         gameState.isGameOver = true;
-        gameState.board = Constants.ClearBoard;
+        gameState.board = Constants.ClearBoard.slice();
 
         return gameState;
     }
@@ -90,7 +90,7 @@ export class ChessComponent {
     onImportClick() {
         try {
             let gameState = JSON.parse(this.importContent);
-            console.log(gameState);
+            this.gameState.board = gameState.board;
         } catch (error) {
             console.warn('Failed to import', error);
         }
