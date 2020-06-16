@@ -1,0 +1,17 @@
+<div class="chess-board">
+    <div class="grid-container">    
+        <div 
+            *ngFor="let square of squares; let i = index"
+            class="grid-item-container" 
+            id="{{square}}" 
+            (drop)="onDrop($event, square)" 
+            (dragover)="onDragover($event)"
+            (mousedown)="onMouseDown($event, square)"
+            (mouseup)="onMouseUp($event)"
+            (mouseenter)="onMouseEnter(square)">
+            <!-- <div *ngIf="board[i]" class="board[i]" draggable="!isEditMode" (dragstart)="onDragStart($event)"></div> -->
+        </div>
+    </div>
+    <div class="white-rook" draggable="true" (dragstart)="onDragStart($event)" id="whiteRook"></div>
+    <div class="background"></div>
+</div>

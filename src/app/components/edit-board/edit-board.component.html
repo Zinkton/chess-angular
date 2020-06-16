@@ -1,0 +1,37 @@
+<div class='col-md-12 edit-board'>
+    <div class="grid-container">    
+        <div *ngFor="let piece of pieces" class="grid-item-container" id="{{piece}}" [ngClass]="{'selected-piece': selectedPiece == piece}" (click)="selectPiece(piece)">
+            <div class="{{piece}} grid-item"></div>
+        </div>
+    </div>
+    <button type="button" class="btn btn-secondary action-button" (click)="onClearBoardClick()">Clear Board</button>
+    <div class="castling">Castling:</div>
+    <div class="col-md-12">
+        <div class="row">
+            <div class="form-check col-md-6">
+                <input type="checkbox" class="form-check-input" id="whiteKingCastle" [checked]="isWhiteKingCastleAllowed" (change)="onWhiteKingCastleChange()">
+                <label class="form-check-label" for="whiteKingCastle">White King Side</label>
+            </div>
+            <div class="form-check col-md-6">
+                <input type="checkbox" class="form-check-input" id="whiteQueenCastle" [checked]="isWhiteQueenCastleAllowed" (change)="onWhiteQueenCastleChange()">
+                <label class="form-check-label" for="whiteQueenCastle">White Queen Side</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-check col-md-6">
+                <input type="checkbox" class="form-check-input" id="blackKingCastle" [checked]="isBlackKingCastleAllowed" (change)="onBlackKingCastleChange()">
+                <label class="form-check-label" for="blackKingCastle">Black King Side</label>
+            </div>
+            <div class="form-check col-md-6">
+                <input type="checkbox" class="form-check-input" id="blackQueenCastle" [checked]="isBlackQueenCastleAllowed" (change)="onBlackQueenCastleChange()">
+                <label class="form-check-label" for="blackQueenCastle">Black Queen Side</label>
+            </div>
+        </div>
+    </div>
+    <div class="next-move">Who is making the next move?</div>
+    <div class="btn-group next-move-buttons">
+        <button type="button" class="btn btn-secondary" [ngClass]="{'active': isWhiteToMove}" (click)="onWhiteToMoveChanged(true)">White</button>
+        <button type="button" class="btn btn-secondary" [ngClass]="{'active': !isWhiteToMove}" (click)="onWhiteToMoveChanged(false)">Black</button>
+    </div>
+</div>
+

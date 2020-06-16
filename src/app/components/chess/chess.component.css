@@ -1,0 +1,22 @@
+.action-button {
+    margin-top: 15px;
+    width: 90%;
+}
+
+.player-name {
+    font-weight: bold;
+    font-size: xx-large;
+}
+
+.time {
+    text-align: right;
+}
+
+.edit-board {
+    margin-top: 15px;
+}
+
+.buttons {
+    width: 90%;
+    text-align: center;
+}

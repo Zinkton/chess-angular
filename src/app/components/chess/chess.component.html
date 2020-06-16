@@ -1,0 +1,54 @@
+<div class="row">
+    <div class="col-md-3 buttons">
+        <div>
+            <button type="button" class="btn btn-secondary action-button">New Game</button>
+        </div>
+        <div>
+            <button type="button" class="btn btn-secondary action-button">Pause Game</button>
+        </div>
+        <div>
+            <button type="button" class="btn btn-secondary action-button" [ngClass]="{'active': isEditMode}" (click)="toggleEdit()">Edit Position</button>
+        </div>
+        <div>
+            <button type="button" class="btn btn-secondary action-button">Export Position</button>
+        </div>
+        <div>
+            <button type="button" class="btn btn-secondary action-button">Import Position</button>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="player-name">{{ blackPlayerName }}</div>
+            </div>
+            <div class="col-md-6">
+                <time class="time" [totalSeconds]="gameState.blackPlayerRemainingSeconds"></time>
+            </div>
+        </div>
+        <material [materialList]="gameState.whiteLostMaterialList"></material>
+        <div>
+            <chess-board [board]="gameState.board" [isEditMode]="isEditMode" (piecePlaced)="onPiecePlaced($event)"></chess-board>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="player-name">{{ whitePlayerName }}</div>
+            </div>
+            <div class="col-md-6">
+                <time class="time" [totalSeconds]="gameState.whitePlayerRemainingSeconds"></time>
+            </div>
+        </div>
+        <material [materialList]="gameState.blackLostMaterialList"></material>
+    </div>
+    <div *ngIf="isEditMode" class="col-md-4 edit-board">
+        <edit-board 
+            [gameState]="gameState" 
+            (clearBoard)="clearBoard()"
+            (isWhiteKingCastleAllowedToggled)="setWhiteKingCastleAllowed($event)"
+            (isWhiteQueenCastleAllowedToggled)="setWhiteQueenCastleAllowed($event)"
+            (isBlackKingCastleAllowedToggled)="setBlackKingCastleAllowed($event)"
+            (isBlackQueenCastleAllowedToggled)="setBlackQueenCastleAllowed($event)"
+            (isWhiteToMoveChanged)="setIsWhiteToMove($event)"
+            (selectedEditPieceChanged)="setSelectedEditPiece($event)">
+        </edit-board>
+    </div>
+</div>

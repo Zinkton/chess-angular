@@ -1,0 +1,103 @@
+.grid-container {
+    background: grey;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto;
+    align-items: center;
+    position: relative;
+}
+
+.grid-item-container {
+    position: relative;
+    width: 100%;
+    border: 1px solid black;
+}
+
+.grid-item {
+    width: 100%;
+    padding-top: 100%;
+    position: relative;
+}
+
+.action-button {
+    margin-top: 15px;
+    width: 100%;
+    text-align: center;
+}
+
+.castling {
+    font-weight: bold;
+    font-size: xx-large;
+}
+
+.next-move {
+    font-weight: bold;
+    font-size: xx-large;
+}
+
+.next-move-buttons {
+    width: 100%;
+}
+
+.selected-piece {
+    background: darkolivegreen;
+}
+
+.wK {
+    background: url(../../../assets/Chess_klt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.wQ {
+    background: url(../../../assets/Chess_qlt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.wR {
+    background: url(../../../assets/Chess_rlt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.wB {
+    background: url(../../../assets/Chess_blt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.wN {
+    background: url(../../../assets/Chess_nlt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.wP {
+    background: url(../../../assets/Chess_plt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.bK {
+    background: url(../../../assets/Chess_kdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.bQ {
+    background: url(../../../assets/Chess_qdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.bR {
+    background: url(../../../assets/Chess_rdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.bB {
+    background: url(../../../assets/Chess_bdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.bN {
+    background: url(../../../assets/Chess_ndt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.bP {
+    background: url(../../../assets/Chess_pdt45.svg) no-repeat;
+    background-size: 100%;
+}

@@ -1,0 +1,42 @@
+.chess-board {   
+    margin-bottom: 20px;
+    margin-top: 20px;
+    position: relative;
+    z-index: 100;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto auto auto;
+    align-items: center;
+    position: relative;
+    z-index: 100;
+}
+
+.active-grid-item {
+    padding-top: 0 !important;
+}
+
+.grid-item-container {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+}
+
+.background{ 
+    background-image: url(../../../assets/Chess_board.svg);
+    width: 100%;
+    padding-top: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -100;
+}
+
+.white-rook {
+    background: url(../../../assets/Chess_rlt45.svg) no-repeat;
+    background-size: 100%;
+    width: 100%;
+    padding-top: 100%;
+    position: relative;
+}
