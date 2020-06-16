@@ -34,7 +34,7 @@ export class EditBoardComponent implements OnInit {
         this.isBlackKingCastleAllowed = this.gameState.isBlackKingCastleAllowed;
         this.isBlackQueenCastleAllowed = this.gameState.isBlackQueenCastleAllowed;
         this.isWhiteToMove = this.gameState.isWhiteToMove;
-        this.selectedPiece = "wK";
+        this.selectPiece('wK');
     }
 
     onWhiteKingCastleChange() {

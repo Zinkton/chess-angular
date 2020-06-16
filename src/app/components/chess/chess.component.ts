@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { GameState } from 'src/app/models/game-state.model';
 import { Constants } from 'src/app/constants/constants';
+import { saveAs } from 'file-saver';
 
 @Component({
     selector: 'chess',
@@ -13,6 +14,10 @@ export class ChessComponent {
     blackPlayerName: string;
     isEditMode: boolean;
     selectedEditPiece: string;
+    importContent: string;
+
+    constructor() {
+    }
 
     ngOnInit() {
         this.gameState = this.initGameState();
@@ -38,7 +43,7 @@ export class ChessComponent {
         gameState.isBlackQueenCastleAllowed = true;
         gameState.isWhiteToMove = true;
         gameState.isGameOver = true;
-        this.clearBoard();
+        gameState.board = Constants.ClearBoard;
 
         return gameState;
     }
@@ -69,5 +74,29 @@ export class ChessComponent {
 
     onPiecePlaced(event) {
         this.gameState.board[Constants.Squares.indexOf(event)] = this.selectedEditPiece;
+        this.gameState.board = this.gameState.board.slice();
+    }
+
+    onPieceRemoved(event) {
+        this.gameState.board[Constants.Squares.indexOf(event)] = null;
+        this.gameState.board = this.gameState.board.slice();
+    }
+
+    onExportClick() {
+        const blob = new Blob([JSON.stringify(this.gameState)], { type: 'application/json' });
+        saveAs(blob, "GameState.json");
+    }
+
+    onImportClick() {
+        try {
+            let gameState = JSON.parse(this.importContent);
+            console.log(gameState);
+        } catch (error) {
+            console.warn('Failed to import', error);
+        }
+    }
+
+    onImportContentChange(event) {
+        this.importContent = event.target.value;
     }
 }

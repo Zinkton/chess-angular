@@ -23,7 +23,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        console.log(changes.board);
+        
     }
 
     onDragover(event) {
@@ -34,43 +34,60 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     onDrop(event, square: string) {
         event.preventDefault();
 
-        let pieceId = event.dataTransfer.getData("piece");
+        let piece = event.dataTransfer.getData("piece");
         let sourceSquare = event.dataTransfer.getData("sourceSquare");
         
         if (sourceSquare == square) {
             return;
         }
         
-        console.log(`Piece: ${pieceId} moved from ${sourceSquare} to ${square}`); 
+        console.log(`Piece: ${piece} trying to move from ${sourceSquare} to ${square}`);
         // Check if move is legal?
-        event.target.appendChild(document.getElementById(pieceId));
+        event.target.appendChild(document.getElementById(piece));
         event.target.classList.add('active-grid-item');
         if (sourceSquare != "") {
             document.getElementById(sourceSquare).classList.remove('active-grid-item');
         }
     }
 
-    onDragStart(event) {
-        event.dataTransfer.setData("piece", event.target.id);
-        event.dataTransfer.setData("sourceSquare", event.target.parentElement.id);
+    onDragStart(event, square, piece) {
+        event.dataTransfer.setData("sourceSquare", square);
+        event.dataTransfer.setData("piece", piece);
     }
 
     onMouseDown(event, square) {
-        console.log('mouseDown', square, event);
-        this.leftMouseDown = true;
+        if (event.which == 1) {
+            this.leftMouseDown = true;
+            this.rightMouseDown = false;
+        } else if (event.which == 3) {
+            this.rightMouseDown = true;
+            this.leftMouseDown = false;
+        }
+        
         if (this.isEditMode) {
-            this.placePiece(event);
+            if (this.leftMouseDown) {
+                this.placePiece(square);
+            } else if (this.rightMouseDown) {
+                this.removePiece(square);
+            }
         }
     }
 
     onMouseUp(event) {
-        console.log('mouseUp', event);
-        this.leftMouseDown = false;
+        if (event.which == 1) {
+            this.leftMouseDown = false;
+        } else if (event.which == 3) {
+            this.rightMouseDown = false;
+        }
     }
 
-    onMouseEnter(event) {
-        if (this.isEditMode && this.leftMouseDown) {
-            this.placePiece(event);
+    onMouseEnter(square) {
+        if (this.isEditMode) {
+            if (this.leftMouseDown) {
+                this.placePiece(square);
+            } else if (this.rightMouseDown) {
+                this.removePiece(square);
+            }
         }
     }
 
@@ -80,5 +97,9 @@ export class ChessBoardComponent implements OnInit, OnChanges {
 
     removePiece(square) {
         this.pieceRemoved.next(square);
+    }
+
+    preventContextMenu(event) {
+        event.preventDefault();
     }
 }

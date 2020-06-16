@@ -9,6 +9,7 @@ import { NewGameFormComponent } from './components/new-game-form/new-game-form.c
 import { TimeComponent } from './components/time/time.component';
 import { ChessBoardComponent } from './components/chess-board/chess-board.component';
 import { EditBoardComponent } from './components/edit-board/edit-board.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { EditBoardComponent } from './components/edit-board/edit-board.component
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

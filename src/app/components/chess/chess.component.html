@@ -10,10 +10,11 @@
             <button type="button" class="btn btn-secondary action-button" [ngClass]="{'active': isEditMode}" (click)="toggleEdit()">Edit Position</button>
         </div>
         <div>
-            <button type="button" class="btn btn-secondary action-button">Export Position</button>
+            <button type="button" class="btn btn-secondary action-button" (click)="onExportClick()">Export Position</button>
         </div>
         <div>
-            <button type="button" class="btn btn-secondary action-button">Import Position</button>
+            <input type="text" (change)="onImportContentChange($event)" class="action-button">
+            <button type="button" class="btn btn-secondary action-button" (click)="onImportClick()">Import Position</button>
         </div>
     </div>
     <div class="col-md-5">
@@ -27,7 +28,7 @@
         </div>
         <material [materialList]="gameState.whiteLostMaterialList"></material>
         <div>
-            <chess-board [board]="gameState.board" [isEditMode]="isEditMode" (piecePlaced)="onPiecePlaced($event)"></chess-board>
+            <chess-board [board]="gameState.board" [isEditMode]="isEditMode" (piecePlaced)="onPiecePlaced($event)" (pieceRemoved)="onPieceRemoved($event)"></chess-board>
         </div>
         <div class="row">
             <div class="col-md-6">
