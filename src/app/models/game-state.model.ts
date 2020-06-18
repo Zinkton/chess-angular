@@ -1,8 +1,10 @@
+import { GameSettings } from './game-settings.model';
+
 export class GameState {
+    public gameSettings: GameSettings;
     public turnHistory: Array<string>;
     public whitePlayerRemainingSeconds: number;
     public blackPlayerRemainingSeconds: number;
-    public timeIncrement: number;
     public whiteLostMaterialList: Array<string>;
     public blackLostMaterialList: Array<string>;
     public board: Array<string>;

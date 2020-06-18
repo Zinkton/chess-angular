@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { GameState } from 'src/app/models/game-state.model';
 import { Constants } from 'src/app/constants/constants';
 import { saveAs } from 'file-saver';
+import { GameSettings } from 'src/app/models/game-settings.model';
 
 @Component({
     selector: 'chess',
@@ -15,16 +16,16 @@ export class ChessComponent {
     isEditMode: boolean;
     selectedEditPiece: string;
     importContent: string;
+    isBoardFlipped: boolean;
 
     constructor() {
     }
 
     ngOnInit() {
         this.gameState = this.initGameState();
-        this.whitePlayerName = "Player 1";
-        this.blackPlayerName = "Player 2";
         this.isEditMode = false;
         this.selectedEditPiece = null;
+        this.isBoardFlipped = false;
     }
 
     toggleEdit() {
@@ -37,6 +38,7 @@ export class ChessComponent {
 
     initGameState(): GameState {
         let gameState = new GameState();
+
         gameState.isWhiteKingCastleAllowed = true;
         gameState.isWhiteQueenCastleAllowed = true;
         gameState.isBlackKingCastleAllowed = true;
@@ -44,8 +46,24 @@ export class ChessComponent {
         gameState.isWhiteToMove = true;
         gameState.isGameOver = true;
         gameState.board = Constants.ClearBoard.slice();
+        gameState.gameSettings = this.initGameSettings();
 
         return gameState;
+    }
+
+    initGameSettings(): GameSettings {
+        let gameSettings = new GameSettings();
+
+        gameSettings.startingPosition = "Standard";
+        gameSettings.isRealTime = true;
+        gameSettings.minutesPerSide = 5;
+        gameSettings.incrementSeconds = 5;
+        gameSettings.whitePlayerName = "Player 1";
+        gameSettings.whitePlayerAiEndpoint = "";
+        gameSettings.blackPlayerName = "Player 2";
+        gameSettings.blackPlayerAiEndpoint = "";
+
+        return gameSettings;
     }
 
     setWhiteKingCastleAllowed(event) {
@@ -98,5 +116,41 @@ export class ChessComponent {
 
     onImportContentChange(event) {
         this.importContent = event.target.value;
+    }
+
+    onFlipBoardClick() {
+        this.isBoardFlipped = !this.isBoardFlipped;
+    }
+
+    startGame(settings) {
+        this.gameState.gameSettings = settings;
+        this.gameState.turnHistory = new Array<string>();
+        this.gameState.isBlackKingCastleAllowed = true;
+        this.gameState.isBlackQueenCastleAllowed = true;
+        this.gameState.isWhiteKingCastleAllowed = true;
+        this.gameState.isWhiteQueenCastleAllowed = true;
+        this.gameState.blackLostMaterialList = new Array<string>();
+        this.gameState.whiteLostMaterialList = new Array<string>();
+        this.gameState.isGameOver = false;
+        this.gameState.isWhiteToMove = true;
+        this.gameState.whitePlayerRemainingSeconds = settings.minutesPerSide * 60;
+        this.gameState.blackPlayerRemainingSeconds = settings.minutesPerSide * 60;
+
+        if (settings.startingPosition == "Standard") {
+            this.gameState.board = Constants.DefaultBoard.slice();
+        } else if (settings.startingPosition == "Chess960") {
+            this.gameState.board = this.getChess960Board();
+        }
+
+        this.gameLoop();
+    }
+
+    getChess960Board(): Array<string> {
+        // ToDo: Implement
+        return Constants.DefaultBoard.slice();
+    }
+
+    gameLoop() {
+        
     }
 }

@@ -1,55 +1,81 @@
-<div class="row">
-    <div class="col-md-3 buttons">
-        <div>
-            <button type="button" class="btn btn-secondary action-button">New Game</button>
+<div class="chess">
+    <div class="row">
+        <div class="col-md-3 buttons">
+            <div>
+                <button type="button" class="btn btn-secondary action-button" data-toggle="modal" data-target="#newGameModal">New Game</button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary action-button">Pause Game</button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary action-button" [ngClass]="{'active': isEditMode}" (click)="toggleEdit()">Edit Position</button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary action-button" (click)="onExportClick()">Export Position</button>
+            </div>
+            <div>
+                <input type="text" (change)="onImportContentChange($event)" class="action-button">
+                <button type="button" class="btn btn-secondary action-button" (click)="onImportClick()">Import Position</button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary action-button" (click)="onFlipBoardClick()">Flip Board</button>
+            </div>
         </div>
-        <div>
-            <button type="button" class="btn btn-secondary action-button">Pause Game</button>
+        <div class="col-md-5">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="player-name">{{ isBoardFlipped ? gameState.gameSettings.whitePlayerName : gameState.gameSettings.blackPlayerName }}</div>
+                </div>
+                <div *ngIf="gameState.gameSettings.isRealTime" class="col-md-6">
+                    <time class="time" [totalSeconds]="isBoardFlipped ? gameState.whitePlayerRemainingSeconds : gameState.blackPlayerRemainingSeconds"></time>
+                </div>
+            </div>
+            <material [materialList]="gameState.whiteLostMaterialList"></material>
+            <div>
+                <chess-board 
+                    [board]="gameState.board" 
+                    [isEditMode]="isEditMode" 
+                    [isBoardFlipped]="isBoardFlipped"
+                    (piecePlaced)="onPiecePlaced($event)" 
+                    (pieceRemoved)="onPieceRemoved($event)">
+                </chess-board>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="player-name">{{ isBoardFlipped ? gameState.gameSettings.blackPlayerName : gameState.gameSettings.whitePlayerName }}</div>
+                </div>
+                <div *ngIf="gameState.gameSettings.isRealTime" class="col-md-6">
+                    <time class="time" [totalSeconds]="isBoardFlipped ? gameState.blackPlayerRemainingSeconds : gameState.whitePlayerRemainingSeconds"></time>
+                </div>
+            </div>
+            <material [materialList]="gameState.blackLostMaterialList"></material>
         </div>
-        <div>
-            <button type="button" class="btn btn-secondary action-button" [ngClass]="{'active': isEditMode}" (click)="toggleEdit()">Edit Position</button>
-        </div>
-        <div>
-            <button type="button" class="btn btn-secondary action-button" (click)="onExportClick()">Export Position</button>
-        </div>
-        <div>
-            <input type="text" (change)="onImportContentChange($event)" class="action-button">
-            <button type="button" class="btn btn-secondary action-button" (click)="onImportClick()">Import Position</button>
+        <div *ngIf="isEditMode" class="col-md-4 edit-board">
+            <edit-board 
+                [gameState]="gameState" 
+                (clearBoard)="clearBoard()"
+                (isWhiteKingCastleAllowedToggled)="setWhiteKingCastleAllowed($event)"
+                (isWhiteQueenCastleAllowedToggled)="setWhiteQueenCastleAllowed($event)"
+                (isBlackKingCastleAllowedToggled)="setBlackKingCastleAllowed($event)"
+                (isBlackQueenCastleAllowedToggled)="setBlackQueenCastleAllowed($event)"
+                (isWhiteToMoveChanged)="setIsWhiteToMove($event)"
+                (selectedEditPieceChanged)="setSelectedEditPiece($event)">
+            </edit-board>
         </div>
     </div>
-    <div class="col-md-5">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="player-name">{{ blackPlayerName }}</div>
+    <div class="modal fade" id="newGameModal" tabindex="-1" role="dialog" aria-labelledby="newGameModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="newGameModalLabel">New Game</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
             </div>
-            <div class="col-md-6">
-                <time class="time" [totalSeconds]="gameState.blackPlayerRemainingSeconds"></time>
+            <div class="modal-body">
+              <new-game-form (startGame)="startGame($event)"></new-game-form>
             </div>
+          </div>
         </div>
-        <material [materialList]="gameState.whiteLostMaterialList"></material>
-        <div>
-            <chess-board [board]="gameState.board" [isEditMode]="isEditMode" (piecePlaced)="onPiecePlaced($event)" (pieceRemoved)="onPieceRemoved($event)"></chess-board>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="player-name">{{ whitePlayerName }}</div>
-            </div>
-            <div class="col-md-6">
-                <time class="time" [totalSeconds]="gameState.whitePlayerRemainingSeconds"></time>
-            </div>
-        </div>
-        <material [materialList]="gameState.blackLostMaterialList"></material>
-    </div>
-    <div *ngIf="isEditMode" class="col-md-4 edit-board">
-        <edit-board 
-            [gameState]="gameState" 
-            (clearBoard)="clearBoard()"
-            (isWhiteKingCastleAllowedToggled)="setWhiteKingCastleAllowed($event)"
-            (isWhiteQueenCastleAllowedToggled)="setWhiteQueenCastleAllowed($event)"
-            (isBlackKingCastleAllowedToggled)="setBlackKingCastleAllowed($event)"
-            (isBlackQueenCastleAllowedToggled)="setBlackQueenCastleAllowed($event)"
-            (isWhiteToMoveChanged)="setIsWhiteToMove($event)"
-            (selectedEditPieceChanged)="setSelectedEditPiece($event)">
-        </edit-board>
-    </div>
+      </div>
 </div>

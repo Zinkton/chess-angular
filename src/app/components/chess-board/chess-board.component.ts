@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Constants } from 'src/app/constants/constants';
 
 @Component({
@@ -6,24 +6,23 @@ import { Constants } from 'src/app/constants/constants';
     templateUrl: './chess-board.component.html',
     styleUrls: ['./chess-board.component.css']
 })
-export class ChessBoardComponent implements OnInit, OnChanges {
+export class ChessBoardComponent implements OnInit {
     @Input() board: Array<string>;
     @Input() isEditMode: boolean;
+    @Input() isBoardFlipped: boolean;
     @Output() piecePlaced = new EventEmitter<string>();
     @Output() pieceRemoved = new EventEmitter<string>();
 
     squares: Array<string>;
     leftMouseDown: boolean;
     rightMouseDown: boolean;
+    boardIndexes: Array<number>;
 
     ngOnInit() {
-        this.squares = Constants.Squares;
+        this.squares = Constants.Squares.slice();
         this.leftMouseDown = false;
         this.rightMouseDown = false;
-    }
-
-    ngOnChanges(changes: SimpleChanges) {
-        
+        this.boardIndexes = Constants.BoardIndexes.slice();
     }
 
     onDragover(event) {

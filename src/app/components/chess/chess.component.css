@@ -20,3 +20,8 @@
     width: 90%;
     text-align: center;
 }
+
+.chess {
+    max-width: 1280px;
+    margin: auto;
+}

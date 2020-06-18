@@ -1,3 +1,64 @@
 <div>
-    
+    <div class="form-inline form-group">
+        <div class="col-md-6">
+            <label for="startingPosition">Variant</label>
+        </div>
+        <div class="col-md-6">
+            <select id="startingPosition" class="form-control" (change)="onStartingPositionChange($event)">
+                <option selected>Standard</option>
+                <option>Chess960</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-inline form-group">
+        <div class="col-md-6">
+            <label for="timeControl">Time Control</label>
+        </div>
+        <div class="col-md-6">
+            <select id="timeControl" class="form-control" (change)="onTimeControlChange($event)">
+                <option selected>Real time</option>
+                <option>Unlimited</option>
+            </select>
+        </div>
+    </div>
+    <div *ngIf="gameSettings.isRealTime" class="form-inline form-group">
+        <div class="col-md-6 range-label">
+            <div>
+                <span>Minutes per side: </span><b>{{ gameSettings.minutesPerSide }}</b>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <input type="range" min="1" max="60" value="{{gameSettings.minutesPerSide}}" class="form-control-range" (change)="onMinutesPerSideChange($event)">
+        </div>
+    </div>
+    <div *ngIf="gameSettings.isRealTime" class="form-inline form-group">
+        <div class="col-md-6 range-label">
+            <div>
+                <span>Increment in seconds: </span><b>{{ gameSettings.incrementSeconds }}</b>            
+            </div>
+        </div>
+        <div class="col-md-6">
+            <input type="range" min="0" max="60" value="{{gameSettings.incrementSeconds}}" class="form-control-range" (change)="onIncrementSecondsChange($event)">
+        </div>
+    </div>
+    <hr>
+    <div class="form-group">
+        <label for="whitePlayerName">White player name</label>
+        <input type="text" id="whitePlayerName" class="form-control" value="{{gameSettings.whitePlayerName}}" (change)="onWhitePlayerNameChange($event)">
+    </div>
+    <div class="form-group">
+        <label for="whitePlayerAiEndpoint">White player AI endpoint</label>
+        <input type="text" id="whitePlayerAiEndpoint" class="form-control" value="{{gameSettings.whitePlayerAiEndpoint}}" (change)="onWhitePlayerAiEndpointChange($event)">
+    </div>
+    <div class="form-group">
+        <label for="blackPlayerName">Black player name</label>
+        <input type="text" id="blackPlayerName" class="form-control" value="{{gameSettings.blackPlayerName}}" (change)="onBlackPlayerNameChange($event)">
+    </div>
+    <div class="form-group">
+        <label for="blackPlayerAiEndpoint">Black player AI endpoint</label>
+        <input type="text" id="blackPlayerAiEndpoint" class="form-control" value="{{gameSettings.blackPlayerAiEndpoint}}" (change)="onBlackPlayerAiEndpointChange($event)">
+    </div>
+    <div class="form-group">
+        <button type="button" class="form-control btn btn-primary" (click)="onStartGameClick()" data-dismiss="modal">Start Game</button>
+    </div>
 </div>
