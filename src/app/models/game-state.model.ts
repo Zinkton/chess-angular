@@ -14,4 +14,5 @@ export class GameState {
     public isBlackQueenCastleAllowed: boolean;
     public isWhiteToMove: boolean;
     public isGameOver: boolean;
+    public winner: string;
 }

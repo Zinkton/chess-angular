@@ -2,29 +2,39 @@
     <div *ngIf="isBoardFlipped" class="grid-container">
         <div *ngFor="let i of boardIndexes.slice().reverse()"
             class="grid-item-container"
-            [ngClass]="{'active-grid-item': board[i]}"
+            [ngClass]="{'active-grid-item': board[i], 'selected-piece': i == clickedSquare, 'legal-square': legalSquares.includes(i)}"
             id="{{squares[i]}}" 
             (drop)="onDrop($event, squares[i])" 
             (dragover)="onDragover($event)"
-            (mousedown)="onMouseDown($event, squares[i])"
+            (mousedown)="onMouseDown($event, squares[i], board[i])"
             (mouseup)="onMouseUp($event)"
             (mouseenter)="onMouseEnter(squares[i])"
             (contextmenu)="preventContextMenu($event)">
-            <div *ngIf="board[i]" class="grid-item" [ngClass]="board[i]" [draggable]="!isEditMode" (dragstart)="onDragStart($event, squares[i], board[i])"></div>
+            <div *ngIf="board[i]" 
+                class="grid-item" 
+                [ngClass]="board[i]" 
+                [draggable]="!isEditMode" 
+                (dragstart)="onDragStart($event, squares[i], board[i])">
+            </div>
         </div>
     </div>
     <div *ngIf="!isBoardFlipped" class="grid-container">
         <div *ngFor="let i of boardIndexes"
             class="grid-item-container"
-            [ngClass]="{'active-grid-item': board[i]}"
+            [ngClass]="{'active-grid-item': board[i], 'selected-piece': i == clickedSquare, 'legal-square': legalSquares.includes(i)}"
             id="{{squares[i]}}" 
             (drop)="onDrop($event, squares[i])" 
             (dragover)="onDragover($event)"
-            (mousedown)="onMouseDown($event, squares[i])"
+            (mousedown)="onMouseDown($event, squares[i], board[i])"
             (mouseup)="onMouseUp($event)"
             (mouseenter)="onMouseEnter(squares[i])"
             (contextmenu)="preventContextMenu($event)">
-            <div *ngIf="board[i]" class="grid-item" [ngClass]="board[i]" [draggable]="!isEditMode" (dragstart)="onDragStart($event, squares[i], board[i])"></div>
+            <div *ngIf="board[i]" 
+            class="grid-item" 
+            [ngClass]="board[i]" 
+            [draggable]="!isEditMode" 
+            (dragstart)="onDragStart($event, squares[i], board[i])">
+        </div>
         </div>
     </div>
     <div class="background"></div>

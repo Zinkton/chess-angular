@@ -38,3 +38,11 @@
     padding-top: 100%;
     position: relative;
 }
+
+.selected-piece {
+    background: rgba(50, 255, 50, 0.25);
+}
+
+.legal-square {
+    background: rgba(100, 255, 100, 0.25);
+}

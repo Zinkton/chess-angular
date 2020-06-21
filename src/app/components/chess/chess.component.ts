@@ -3,6 +3,7 @@ import { GameState } from 'src/app/models/game-state.model';
 import { Constants } from 'src/app/constants/constants';
 import { saveAs } from 'file-saver';
 import { GameSettings } from 'src/app/models/game-settings.model';
+import { LogicService } from 'src/app/services/logic.service';
 
 @Component({
     selector: 'chess',
@@ -17,15 +18,17 @@ export class ChessComponent {
     selectedEditPiece: string;
     importContent: string;
     isBoardFlipped: boolean;
+    legalMoves: Array<string>;
+    gameTimer: any;
 
-    constructor() {
-    }
+    constructor(private logicService: LogicService) {}
 
     ngOnInit() {
         this.gameState = this.initGameState();
         this.isEditMode = false;
         this.selectedEditPiece = null;
         this.isBoardFlipped = false;
+        this.legalMoves = null;
     }
 
     toggleEdit() {
@@ -142,7 +145,8 @@ export class ChessComponent {
             this.gameState.board = this.getChess960Board();
         }
 
-        this.gameLoop();
+        this.legalMoves = this.logicService.getLegalMoves(this.gameState);
+        this.startTimer();
     }
 
     getChess960Board(): Array<string> {
@@ -150,7 +154,26 @@ export class ChessComponent {
         return Constants.DefaultBoard.slice();
     }
 
-    gameLoop() {
-        
+    onPieceMoved(move) {
+        console.log(move);
+        this.logicService.makeMove(this.gameState, move);
+        this.legalMoves = this.logicService.getLegalMoves(this.gameState);
+        this.startTimer();
+    }
+
+    startTimer() {
+        if (!this.gameState.gameSettings.isRealTime) {
+            return;
+        }
+
+        if (this.gameTimer) {
+            clearInterval(this.gameTimer);
+        }
+
+        this.gameTimer = setInterval(() => {
+            if (this.logicService.substractSecond(this.gameState)) {
+                clearInterval(this.gameTimer);
+            }
+        }, 1000);
     }
 }

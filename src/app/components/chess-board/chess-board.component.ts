@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Constants } from 'src/app/constants/constants';
+import { LogicService } from 'src/app/services/logic.service';
 
 @Component({
     selector: 'chess-board',
@@ -10,19 +11,27 @@ export class ChessBoardComponent implements OnInit {
     @Input() board: Array<string>;
     @Input() isEditMode: boolean;
     @Input() isBoardFlipped: boolean;
+    @Input() legalMoves: Array<string>;
     @Output() piecePlaced = new EventEmitter<string>();
     @Output() pieceRemoved = new EventEmitter<string>();
+    @Output() pieceMoved = new EventEmitter<string>();
 
     squares: Array<string>;
     leftMouseDown: boolean;
     rightMouseDown: boolean;
     boardIndexes: Array<number>;
+    clickedSquare: number;
+    legalSquares: Array<number>;
+
+    constructor(private logicService: LogicService) {}
 
     ngOnInit() {
         this.squares = Constants.Squares.slice();
         this.leftMouseDown = false;
         this.rightMouseDown = false;
         this.boardIndexes = Constants.BoardIndexes.slice();
+        this.clickedSquare = null;
+        this.legalSquares = Array<number>();
     }
 
     onDragover(event) {
@@ -30,22 +39,20 @@ export class ChessBoardComponent implements OnInit {
         event.preventDefault();
     }
 
-    onDrop(event, square: string) {
+    onDrop(event, destination: string) {
         event.preventDefault();
 
         let piece = event.dataTransfer.getData("piece");
-        let sourceSquare = event.dataTransfer.getData("sourceSquare");
-        
-        if (sourceSquare == square) {
-            return;
+        let source = event.dataTransfer.getData("sourceSquare");
+        let move = piece + source + destination;
+
+        if (source != destination) {
+            this.legalSquares = new Array<number>();
+            this.clickedSquare = null;
         }
-        
-        console.log(`Piece: ${piece} trying to move from ${sourceSquare} to ${square}`);
-        // Check if move is legal?
-        event.target.appendChild(document.getElementById(piece));
-        event.target.classList.add('active-grid-item');
-        if (sourceSquare != "") {
-            document.getElementById(sourceSquare).classList.remove('active-grid-item');
+
+        if (this.legalMoves.includes(move)) {
+            this.pieceMoved.next(move);
         }
     }
 
@@ -54,7 +61,7 @@ export class ChessBoardComponent implements OnInit {
         event.dataTransfer.setData("piece", piece);
     }
 
-    onMouseDown(event, square) {
+    onMouseDown(event, square, piece) {
         if (event.which == 1) {
             this.leftMouseDown = true;
             this.rightMouseDown = false;
@@ -68,6 +75,13 @@ export class ChessBoardComponent implements OnInit {
                 this.placePiece(square);
             } else if (this.rightMouseDown) {
                 this.removePiece(square);
+            }
+        } else {
+            if (this.leftMouseDown) {
+                this.onSquareClick(piece, square);
+            } else if (this.rightMouseDown) {
+                this.clickedSquare = null;
+                this.legalSquares = new Array<number>();
             }
         }
     }
@@ -100,5 +114,32 @@ export class ChessBoardComponent implements OnInit {
 
     preventContextMenu(event) {
         event.preventDefault();
+    }
+
+    onSquareClick(piece, source) {
+        this.legalSquares = new Array<number>();
+
+        if (this.clickedSquare) {
+            let move = this.board[this.clickedSquare] + this.squares[this.clickedSquare] + source;
+            if (this.legalMoves.includes(move)) {
+                this.clickedSquare = null;
+                this.pieceMoved.next(move);
+                return;
+            } 
+        }
+
+        this.legalMoves.forEach(legalMove => {
+            if (legalMove.startsWith(piece + source)) {
+                let legalSquare = legalMove.slice(4);
+                let legalSquareIndex = this.squares.indexOf(legalSquare);
+                this.legalSquares.push(legalSquareIndex);
+            }
+        });
+
+        if (this.legalSquares.length > 0) {
+            this.clickedSquare = this.squares.indexOf(source);
+        } else {
+            this.clickedSquare = null;
+        }
     }
 }

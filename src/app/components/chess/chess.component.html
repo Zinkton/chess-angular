@@ -36,8 +36,10 @@
                     [board]="gameState.board" 
                     [isEditMode]="isEditMode" 
                     [isBoardFlipped]="isBoardFlipped"
+                    [legalMoves]="legalMoves"
                     (piecePlaced)="onPiecePlaced($event)" 
-                    (pieceRemoved)="onPieceRemoved($event)">
+                    (pieceRemoved)="onPieceRemoved($event)"
+                    (pieceMoved)="onPieceMoved($event)">
                 </chess-board>
             </div>
             <div class="row">
