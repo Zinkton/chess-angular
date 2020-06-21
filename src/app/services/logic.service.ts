@@ -14,29 +14,182 @@ export class LogicService {
             return null;
         }
 
-        return this.getLegalNonCheckMoves(gameState);
+        let squares = Constants.Squares.slice();
+        let lastMove = gameState.turnHistory ? gameState.turnHistory[gameState.turnHistory.length - 1] : null;
+        let legalMovesNoCheck = this.getLegalNonCheckMoves(gameState.board.slice(), lastMove, gameState.isWhiteToMove);
+        let legalMoves = new Array<string>();
 
-        // let legalMovesNoCheck = this.getLegalNonCheckMoves(gameState);
+        legalMovesNoCheck.forEach(move => {
+            let board = this.makeFakeMove(gameState.board.slice(), move);
+            let legalEnemyMoves = this.getLegalNonCheckMoves(board, move, !gameState.isWhiteToMove);
+            let isMoveLegal = true;
+            legalEnemyMoves.forEach(enemyMove => {
+                let destination = squares.indexOf(enemyMove.slice(4, 6));
+                if (board[destination] && board[destination][1] == 'K') {
+                    isMoveLegal = false;
+                }
+            });
+            if (isMoveLegal) {
+                legalMoves.push(move);
+            }
+        });
 
-        // legalMovesNoCheck.forEach(move => {
-            
-        // })
 
-        // legalMoves.push('resign');
+        let legalEnemyMoves = this.getLegalNonCheckMoves(gameState.board.slice(), null, !gameState.isWhiteToMove);
+        if (gameState.isWhiteToMove) {
+            if (gameState.isWhiteKingCastleAllowed) {
+                let kingPosition = gameState.board.indexOf('wK');
+                let right = 1;
+                let isPieceInTheWay = false;
 
-        // return legalMoves;
+                while (gameState.board[kingPosition + right] != 'wR') {
+                    if (gameState.board[kingPosition + right]) {
+                        isPieceInTheWay = true;
+                        break;
+                    }
+                }
+                
+                if (!isPieceInTheWay && 
+                    (kingPosition == 62 || kingPosition + right == 62 || !gameState.board[62]) && 
+                    (kingPosition == 63 || kingPosition + right == 63 || !gameState.board[63])
+                ) {
+                    let isPathAttacked = false;
+                    for (let i = kingPosition + 1; i <= kingPosition + right; i++) {
+                        legalEnemyMoves.forEach(enemyMove => {
+                            let destination = enemyMove.slice(4, 6);
+                            if (destination == squares[i]) {
+                                isPathAttacked = true;
+                            }
+                        });
+                    }
+                    if (!isPathAttacked) {
+                        legalMoves.push('wK' + squares[kingPosition] + squares[kingPosition + right] + 'OO');
+                    }
+                }
+            }
+            if (gameState.isWhiteQueenCastleAllowed) {
+                let kingPosition = gameState.board.indexOf('wK');
+                let left = 1;
+                let isPieceInTheWay = false;
+                while (gameState.board[kingPosition - left] != 'wR') {
+                    if (gameState.board[kingPosition - left]) {
+                        isPieceInTheWay = true;
+                        break;
+                    }
+                }
+                if (!isPieceInTheWay && 
+                    (kingPosition == 58 || kingPosition - left == 58 || !gameState.board[58]) && 
+                    (kingPosition == 59 || kingPosition - left == 59 || !gameState.board[59])
+                ) {
+                    let isPathAttacked = false;
+                    for (let i = kingPosition - 1; i >= kingPosition - left; i--) {
+                        legalEnemyMoves.forEach(enemyMove => {
+                            let destination = enemyMove.slice(4, 6);
+                            if (destination == squares[i]) {
+                                isPathAttacked = true;
+                            }
+                        });
+                    }
+                    if (!isPathAttacked) {
+                        legalMoves.push('wK' + squares[kingPosition] + squares[kingPosition - left] + 'OOO');
+                    }
+                }
+            }
+        } else {
+            if (gameState.isBlackKingCastleAllowed) {
+                let kingPosition = gameState.board.indexOf('bK');
+                let right = 1;
+                let isPieceInTheWay = false;
+                while (gameState.board[kingPosition + right] != 'bR') {
+                    if (gameState.board[kingPosition + right]) {
+                        isPieceInTheWay = true;
+                        break;
+                    }
+                }
+                if (!isPieceInTheWay && 
+                    (kingPosition == 5 || kingPosition + right == 5 || !gameState.board[5]) && 
+                    (kingPosition == 6 || kingPosition + right == 6 || !gameState.board[6])
+                ) {
+                    let isPathAttacked = false;
+                    for (let i = kingPosition + 1; i <= kingPosition + right; i++) {
+                        legalEnemyMoves.forEach(enemyMove => {
+                            let destination = enemyMove.slice(4, 6);
+                            if (destination == squares[i]) {
+                                isPathAttacked = true;
+                            }
+                        });
+                    }
+                    if (!isPathAttacked) {
+                        legalMoves.push('bK' + squares[kingPosition] + squares[kingPosition + right] + 'OO');
+                    }
+                }
+            }
+            if (gameState.isBlackQueenCastleAllowed) {
+                let kingPosition = gameState.board.indexOf('bK');
+                let left = 1;
+                let isPieceInTheWay = false;
+                while (gameState.board[kingPosition - left] != 'bR') {
+                    if (gameState.board[kingPosition - left]) {
+                        isPieceInTheWay = true;
+                        break;
+                    }
+                }
+                if (!isPieceInTheWay && 
+                    (kingPosition == 2 || kingPosition - left == 2 || !gameState.board[2]) && 
+                    (kingPosition == 3 || kingPosition - left == 3 || !gameState.board[3])
+                ) {
+                    let isPathAttacked = false;
+                    for (let i = kingPosition - 1; i >= kingPosition - left; i--) {
+                        legalEnemyMoves.forEach(enemyMove => {
+                            let destination = enemyMove.slice(4, 6);
+                            if (destination == squares[i]) {
+                                isPathAttacked = true;
+                            }
+                        });
+                    }
+                    if (!isPathAttacked) {
+                        legalMoves.push('bK' + squares[kingPosition] + squares[kingPosition - left] + 'OOO');
+                    }
+                }
+            }
+        }
+
+        legalMoves.push('resign');
+
+        return legalMoves;
     }
 
-    getLegalNonCheckMoves(gameState: GameState) {
+    makeFakeMove(board: Array<string>, move: string): Array<string> {
+        let squares = Constants.Squares.slice();
+        let piece = move.slice(0, 2);
+        let source = squares.indexOf(move.slice(2, 4));
+        let destination = squares.indexOf(move.slice(4, 6));
+
+        board[source] = null;
+        board[destination] = piece;
+        if (piece[1] == 'P' && move.length == 7) {
+            board[destination] = piece[0] + move[6];
+        } else if (piece[1] == 'P' && move.length == 8 && move.slice(6, 8) == 'ep') {
+            if (move[0] == 'w') {
+                board[destination + 8] = null;
+            } else {
+                board[destination - 8] = null;
+            }
+        }
+
+        return board;
+    }
+
+    getLegalNonCheckMoves(board: Array<string>, lastMove: string, isWhiteToMove: boolean) {
         let legalMovesNoCheck = new Array<string>();
         let squares = Constants.Squares.slice();
 
-        gameState.board.forEach((piece, i) => {
-            if (gameState.isWhiteToMove && piece && piece.startsWith('w')) {
+        board.forEach((piece, i) => {
+            if (isWhiteToMove && piece && piece.startsWith('w')) {
                 // White pawn
                 if (piece[1] == 'P') {
                     // Forward
-                    if (!gameState.board[i - 8]) {
+                    if (!board[i - 8]) {
                         if (i - 8 <= 7) {
                             legalMovesNoCheck.push('wP' + squares[i] + squares[i - 8] + 'Q');
                             legalMovesNoCheck.push('wP' + squares[i] + squares[i - 8] + 'N');
@@ -47,11 +200,11 @@ export class LogicService {
                         }
                     }
                     // Double Forward
-                    if (i >= 48 && i <= 55 && !gameState.board[i - 8] && !gameState.board[i - 16]) {
+                    if (i >= 48 && i <= 55 && !board[i - 8] && !board[i - 16]) {
                         legalMovesNoCheck.push('wP' + squares[i] + squares[i - 16]);
                     }
                     // Attack
-                    if (i % 8 != 7 && gameState.board[i - 7] && gameState.board[i - 7].startsWith('b')) {
+                    if (i % 8 != 7 && board[i - 7] && board[i - 7].startsWith('b')) {
                         if (i - 7 <= 7) {
                             legalMovesNoCheck.push('wP' + squares[i] + squares[i - 7] + 'Q');
                             legalMovesNoCheck.push('wP' + squares[i] + squares[i - 7] + 'N');
@@ -61,7 +214,7 @@ export class LogicService {
                             legalMovesNoCheck.push('wP' + squares[i] + squares[i - 7]);
                         }
                     }
-                    if (i % 8 != 0 && gameState.board[i - 9] && gameState.board[i - 9].startsWith('b')) {
+                    if (i % 8 != 0 && board[i - 9] && board[i - 9].startsWith('b')) {
                         if (i - 9 <= 7) {
                             legalMovesNoCheck.push('wP' + squares[i] + squares[i - 9] + 'Q');
                             legalMovesNoCheck.push('wP' + squares[i] + squares[i - 9] + 'N');
@@ -72,53 +225,52 @@ export class LogicService {
                         }
                     }
                     // En passant
-                    if (gameState.turnHistory.length > 0 && i >= 24 && i <= 31) {
-                        let lastTurn = gameState.turnHistory[gameState.turnHistory.length - 1];
-                        let piece = lastTurn.slice(0, 2);
-                        let source = squares.indexOf(lastTurn.slice(2, 4));
-                        let destination = squares.indexOf(lastTurn.slice(4, 6));
+                    if (lastMove && i >= 24 && i <= 31) {
+                        let piece = lastMove.slice(0, 2);
+                        let source = squares.indexOf(lastMove.slice(2, 4));
+                        let destination = squares.indexOf(lastMove.slice(4, 6));
 
                         if (piece == 'bP' && i % 8 != 7 && source == i - 15 && destination == i + 1) {
-                            legalMovesNoCheck.push('wP' + squares[i] + squares[i - 7]);
+                            legalMovesNoCheck.push('wP' + squares[i] + squares[i - 7] + 'ep');
                         }
                         if (piece == 'bP' && i % 8 != 0 && source == i - 17 && destination == i - 1) {
-                            legalMovesNoCheck.push('wP' + squares[i] + squares[i - 9]);
+                            legalMovesNoCheck.push('wP' + squares[i] + squares[i - 9] + 'ep');
                         }
                     }
                 } else if (piece[1] == 'N') {
-                    if (i >= 16 && i % 8 < 7 && (!gameState.board[i - 15] || !gameState.board[i - 15].startsWith('w'))) {
+                    if (i >= 16 && i % 8 < 7 && (!board[i - 15] || !board[i - 15].startsWith('w'))) {
                         legalMovesNoCheck.push('wN' + squares[i] + squares[i - 15]);
                     }
-                    if (i <= 47 && i % 8 > 0 && (!gameState.board[i + 15] || !gameState.board[i + 15].startsWith('w'))) {
+                    if (i <= 47 && i % 8 > 0 && (!board[i + 15] || !board[i + 15].startsWith('w'))) {
                         legalMovesNoCheck.push('wN' + squares[i] + squares[i + 15]);
                     }
-                    if (i >= 8 && i % 8 < 6 && (!gameState.board[i - 6] || !gameState.board[i - 6].startsWith('w'))) {
+                    if (i >= 8 && i % 8 < 6 && (!board[i - 6] || !board[i - 6].startsWith('w'))) {
                         legalMovesNoCheck.push('wN' + squares[i] + squares[i - 6]);
                     }
-                    if (i <= 55 && i % 8 > 1 && (!gameState.board[i + 6] || !gameState.board[i + 6].startsWith('w'))) {
+                    if (i <= 55 && i % 8 > 1 && (!board[i + 6] || !board[i + 6].startsWith('w'))) {
                         legalMovesNoCheck.push('wN' + squares[i] + squares[i + 6]);
                     }
-                    if (i >= 8 && i % 8 > 1 && (!gameState.board[i - 10] || !gameState.board[i - 10].startsWith('w'))) {
+                    if (i >= 8 && i % 8 > 1 && (!board[i - 10] || !board[i - 10].startsWith('w'))) {
                         legalMovesNoCheck.push('wN' + squares[i] + squares[i - 10]);
                     }
-                    if (i <= 55 && i % 8 < 6 && (!gameState.board[i + 10] || !gameState.board[i + 10].startsWith('w'))) {
+                    if (i <= 55 && i % 8 < 6 && (!board[i + 10] || !board[i + 10].startsWith('w'))) {
                         legalMovesNoCheck.push('wN' + squares[i] + squares[i + 10]);
                     }
-                    if (i >= 16 && i % 8 > 0 && (!gameState.board[i - 17] || !gameState.board[i - 17].startsWith('w'))) {
+                    if (i >= 16 && i % 8 > 0 && (!board[i - 17] || !board[i - 17].startsWith('w'))) {
                         legalMovesNoCheck.push('wN' + squares[i] + squares[i - 17]);
                     }
-                    if (i <= 47 && i % 8 < 7 && (!gameState.board[i + 17] || !gameState.board[i + 17].startsWith('w'))) {
+                    if (i <= 47 && i % 8 < 7 && (!board[i + 17] || !board[i + 17].startsWith('w'))) {
                         legalMovesNoCheck.push('wN' + squares[i] + squares[i + 17]);
                     }
                 } else if (piece[1] == 'B') {
                     let upRight = i;
                     while (upRight % 8 != 7 && upRight >= 8) {
                         upRight -= 7;
-                        if (gameState.board[upRight] && gameState.board[upRight].startsWith('b')) {
+                        if (board[upRight] && board[upRight].startsWith('b')) {
                             legalMovesNoCheck.push('wB' + squares[i] + squares[upRight]);
                             break;
                         }
-                        if (gameState.board[upRight] && gameState.board[upRight].startsWith('w')) {
+                        if (board[upRight] && board[upRight].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wB' + squares[i] + squares[upRight]);
@@ -126,11 +278,11 @@ export class LogicService {
                     let upLeft = i;
                     while (upLeft % 8 != 0 && upLeft >= 8) {
                         upLeft -= 9;
-                        if (gameState.board[upLeft] && gameState.board[upLeft].startsWith('b')) {
+                        if (board[upLeft] && board[upLeft].startsWith('b')) {
                             legalMovesNoCheck.push('wB' + squares[i] + squares[upLeft]);
                             break;
                         }
-                        if (gameState.board[upLeft] && gameState.board[upLeft].startsWith('w')) {
+                        if (board[upLeft] && board[upLeft].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wB' + squares[i] + squares[upLeft]);
@@ -138,11 +290,11 @@ export class LogicService {
                     let downRight = i;
                     while (downRight % 8 != 7 && downRight <= 55) {
                         downRight += 9;
-                        if (gameState.board[downRight] && gameState.board[downRight].startsWith('b')) {
+                        if (board[downRight] && board[downRight].startsWith('b')) {
                             legalMovesNoCheck.push('wB' + squares[i] + squares[downRight]);
                             break;
                         }
-                        if (gameState.board[downRight] && gameState.board[downRight].startsWith('w')) {
+                        if (board[downRight] && board[downRight].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wB' + squares[i] + squares[downRight]);
@@ -150,11 +302,11 @@ export class LogicService {
                     let downLeft = i;
                     while (downLeft % 8 != 0 && downLeft <= 55) {
                         downLeft += 7;
-                        if (gameState.board[downLeft] && gameState.board[downLeft].startsWith('b')) {
+                        if (board[downLeft] && board[downLeft].startsWith('b')) {
                             legalMovesNoCheck.push('wB' + squares[i] + squares[downLeft]);
                             break;
                         }
-                        if (gameState.board[downLeft] && gameState.board[downLeft].startsWith('w')) {
+                        if (board[downLeft] && board[downLeft].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wB' + squares[i] + squares[downLeft]);
@@ -163,11 +315,11 @@ export class LogicService {
                     let up = i;
                     while (up >= 8) {
                         up -= 8;
-                        if (gameState.board[up] && gameState.board[up].startsWith('b')) {
+                        if (board[up] && board[up].startsWith('b')) {
                             legalMovesNoCheck.push('wR' + squares[i] + squares[up]);
                             break;
                         }
-                        if (gameState.board[up] && gameState.board[up].startsWith('w')) {
+                        if (board[up] && board[up].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wR' + squares[i] + squares[up]);
@@ -175,11 +327,11 @@ export class LogicService {
                     let right = i;
                     while (right % 8 != 7) {
                         right++;
-                        if (gameState.board[right] && gameState.board[right].startsWith('b')) {
+                        if (board[right] && board[right].startsWith('b')) {
                             legalMovesNoCheck.push('wR' + squares[i] + squares[right]);
                             break;
                         }
-                        if (gameState.board[right] && gameState.board[right].startsWith('w')) {
+                        if (board[right] && board[right].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wR' + squares[i] + squares[right]);
@@ -187,11 +339,11 @@ export class LogicService {
                     let down = i;
                     while (down <= 55) {
                         down += 8;
-                        if (gameState.board[down] && gameState.board[down].startsWith('b')) {
+                        if (board[down] && board[down].startsWith('b')) {
                             legalMovesNoCheck.push('wR' + squares[i] + squares[down]);
                             break;
                         }
-                        if (gameState.board[down] && gameState.board[down].startsWith('w')) {
+                        if (board[down] && board[down].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wR' + squares[i] + squares[down]);
@@ -199,11 +351,11 @@ export class LogicService {
                     let left = i;
                     while (left % 8 != 0) {
                         left--;
-                        if (gameState.board[left] && gameState.board[left].startsWith('b')) {
+                        if (board[left] && board[left].startsWith('b')) {
                             legalMovesNoCheck.push('wR' + squares[i] + squares[left]);
                             break;
                         }
-                        if (gameState.board[left] && gameState.board[left].startsWith('w')) {
+                        if (board[left] && board[left].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wR' + squares[i] + squares[left]);
@@ -212,11 +364,11 @@ export class LogicService {
                     let up = i;
                     while (up >= 8) {
                         up -= 8;
-                        if (gameState.board[up] && gameState.board[up].startsWith('b')) {
+                        if (board[up] && board[up].startsWith('b')) {
                             legalMovesNoCheck.push('wQ' + squares[i] + squares[up]);
                             break;
                         }
-                        if (gameState.board[up] && gameState.board[up].startsWith('w')) {
+                        if (board[up] && board[up].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wQ' + squares[i] + squares[up]);
@@ -224,11 +376,11 @@ export class LogicService {
                     let right = i;
                     while (right % 8 != 7) {
                         right++;
-                        if (gameState.board[right] && gameState.board[right].startsWith('b')) {
+                        if (board[right] && board[right].startsWith('b')) {
                             legalMovesNoCheck.push('wQ' + squares[i] + squares[right]);
                             break;
                         }
-                        if (gameState.board[right] && gameState.board[right].startsWith('w')) {
+                        if (board[right] && board[right].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wQ' + squares[i] + squares[right]);
@@ -236,11 +388,11 @@ export class LogicService {
                     let down = i;
                     while (down <= 55) {
                         down += 8;
-                        if (gameState.board[down] && gameState.board[down].startsWith('b')) {
+                        if (board[down] && board[down].startsWith('b')) {
                             legalMovesNoCheck.push('wQ' + squares[i] + squares[down]);
                             break;
                         }
-                        if (gameState.board[down] && gameState.board[down].startsWith('w')) {
+                        if (board[down] && board[down].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wQ' + squares[i] + squares[down]);
@@ -248,11 +400,11 @@ export class LogicService {
                     let left = i;
                     while (left % 8 != 0) {
                         left--;
-                        if (gameState.board[left] && gameState.board[left].startsWith('b')) {
+                        if (board[left] && board[left].startsWith('b')) {
                             legalMovesNoCheck.push('wQ' + squares[i] + squares[left]);
                             break;
                         }
-                        if (gameState.board[left] && gameState.board[left].startsWith('w')) {
+                        if (board[left] && board[left].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wQ' + squares[i] + squares[left]);
@@ -260,11 +412,11 @@ export class LogicService {
                     let upRight = i;
                     while (upRight % 8 != 7 && upRight >= 8) {
                         upRight -= 7;
-                        if (gameState.board[upRight] && gameState.board[upRight].startsWith('b')) {
+                        if (board[upRight] && board[upRight].startsWith('b')) {
                             legalMovesNoCheck.push('wQ' + squares[i] + squares[upRight]);
                             break;
                         }
-                        if (gameState.board[upRight] && gameState.board[upRight].startsWith('w')) {
+                        if (board[upRight] && board[upRight].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wQ' + squares[i] + squares[upRight]);
@@ -272,11 +424,11 @@ export class LogicService {
                     let upLeft = i;
                     while (upLeft % 8 != 0 && upLeft >= 8) {
                         upLeft -= 9;
-                        if (gameState.board[upLeft] && gameState.board[upLeft].startsWith('b')) {
+                        if (board[upLeft] && board[upLeft].startsWith('b')) {
                             legalMovesNoCheck.push('wQ' + squares[i] + squares[upLeft]);
                             break;
                         }
-                        if (gameState.board[upLeft] && gameState.board[upLeft].startsWith('w')) {
+                        if (board[upLeft] && board[upLeft].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wQ' + squares[i] + squares[upLeft]);
@@ -284,11 +436,11 @@ export class LogicService {
                     let downRight = i;
                     while (downRight % 8 != 7 && downRight <= 55) {
                         downRight += 9;
-                        if (gameState.board[downRight] && gameState.board[downRight].startsWith('b')) {
+                        if (board[downRight] && board[downRight].startsWith('b')) {
                             legalMovesNoCheck.push('wQ' + squares[i] + squares[downRight]);
                             break;
                         }
-                        if (gameState.board[downRight] && gameState.board[downRight].startsWith('w')) {
+                        if (board[downRight] && board[downRight].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wQ' + squares[i] + squares[downRight]);
@@ -296,46 +448,46 @@ export class LogicService {
                     let downLeft = i;
                     while (downLeft % 8 != 0 && downLeft <= 55) {
                         downLeft += 7;
-                        if (gameState.board[downLeft] && gameState.board[downLeft].startsWith('b')) {
+                        if (board[downLeft] && board[downLeft].startsWith('b')) {
                             legalMovesNoCheck.push('wQ' + squares[i] + squares[downLeft]);
                             break;
                         }
-                        if (gameState.board[downLeft] && gameState.board[downLeft].startsWith('w')) {
+                        if (board[downLeft] && board[downLeft].startsWith('w')) {
                             break;
                         }
                         legalMovesNoCheck.push('wQ' + squares[i] + squares[downLeft]);
                     }
                 } else if (piece[1] == 'K') {
-                    if (i >= 8 && (!gameState.board || !gameState.board[i - 8].startsWith('w'))) {
+                    if (i >= 8 && (!board || !board[i - 8].startsWith('w'))) {
                         legalMovesNoCheck.push('wK' + squares[i] + squares[i - 8]);
                     }
-                    if (i % 8 != 7 && (!gameState.board[i + 1] || !gameState.board[i + 1].startsWith('w'))) {
+                    if (i % 8 != 7 && (!board[i + 1] || !board[i + 1].startsWith('w'))) {
                         legalMovesNoCheck.push('wK' + squares[i] + squares[i + 1]);
                     }
-                    if (i <= 55 && (!gameState.board[i + 8] || !gameState.board[i + 8].startsWith('w'))) {
+                    if (i <= 55 && (!board[i + 8] || !board[i + 8].startsWith('w'))) {
                         legalMovesNoCheck.push('wK' + squares[i] + squares[i + 8]);
                     }
-                    if (i % 8 != 0 && (!gameState.board[i - 1] || !gameState.board[i - 1].startsWith('w'))) {
+                    if (i % 8 != 0 && (!board[i - 1] || !board[i - 1].startsWith('w'))) {
                         legalMovesNoCheck.push('wK' + squares[i] + squares[i - 1]);
                     }
-                    if (i % 8 != 7 && i >= 8 && (!gameState.board[i - 7] || !gameState.board[i - 7].startsWith('w'))) {
+                    if (i % 8 != 7 && i >= 8 && (!board[i - 7] || !board[i - 7].startsWith('w'))) {
                         legalMovesNoCheck.push('wK' + squares[i] + squares[i - 7]);
                     }
-                    if (i % 8 != 0 && i >= 8 && (!gameState.board[i - 9] || !gameState.board[i - 9].startsWith('w'))) {
+                    if (i % 8 != 0 && i >= 8 && (!board[i - 9] || !board[i - 9].startsWith('w'))) {
                         legalMovesNoCheck.push('wK' + squares[i] + squares[i - 9]);
                     }
-                    if (i % 8 != 7 && i <= 55 && (!gameState.board[i + 9] || !gameState.board[i + 9].startsWith('w'))) {
+                    if (i % 8 != 7 && i <= 55 && (!board[i + 9] || !board[i + 9].startsWith('w'))) {
                         legalMovesNoCheck.push('wK' + squares[i] + squares[i + 9]);
                     }
-                    if (i % 8 != 0 && i <= 55 && (!gameState.board[i + 7] || !gameState.board[i + 7].startsWith('w'))) {
+                    if (i % 8 != 0 && i <= 55 && (!board[i + 7] || !board[i + 7].startsWith('w'))) {
                         legalMovesNoCheck.push('wK' + squares[i] + squares[i + 7]);
                     }
                 }
-            } else if (!gameState.isWhiteToMove && piece?.startsWith('b')) {
+            } else if (!isWhiteToMove && piece && piece.startsWith('b')) {
                 // Black pawn
                 if (piece[1] == 'P') {
                     // Forward
-                    if (!gameState.board[i + 8]) {
+                    if (!board[i + 8]) {
                         if (i + 8 >= 56) {
                             legalMovesNoCheck.push('bP' + squares[i] + squares[i + 8] + 'Q');
                             legalMovesNoCheck.push('bP' + squares[i] + squares[i + 8] + 'N');
@@ -346,11 +498,11 @@ export class LogicService {
                         }
                     }
                     // Double Forward
-                    if (i >= 8 && i <= 15 && !gameState.board[i + 8] && !gameState.board[i + 16]) {
+                    if (i >= 8 && i <= 15 && !board[i + 8] && !board[i + 16]) {
                         legalMovesNoCheck.push('bP' + squares[i] + squares[i + 16]);
                     }
                     // Attack
-                    if (i % 8 != 7 && gameState.board[i + 9] && gameState.board[i + 9].startsWith('b')) {
+                    if (i % 8 != 7 && board[i + 9] && board[i + 9].startsWith('b')) {
                         if (i + 9 >= 56) {
                             legalMovesNoCheck.push('bP' + squares[i] + squares[i + 9] + 'Q');
                             legalMovesNoCheck.push('bP' + squares[i] + squares[i + 9] + 'N');
@@ -360,7 +512,7 @@ export class LogicService {
                             legalMovesNoCheck.push('bP' + squares[i] + squares[i + 9]);
                         }
                     }
-                    if (i % 8 != 0 && gameState.board[i + 7] && gameState.board[i + 7].startsWith('b')) {
+                    if (i % 8 != 0 && board[i + 7] && board[i + 7].startsWith('b')) {
                         if (i + 7 >= 56) {
                             legalMovesNoCheck.push('bP' + squares[i] + squares[i + 7] + 'Q');
                             legalMovesNoCheck.push('bP' + squares[i] + squares[i + 7] + 'N');
@@ -371,53 +523,52 @@ export class LogicService {
                         }
                     }
                     // En passant
-                    if (gameState.turnHistory.length > 0 && i >= 32 && i <= 39) {
-                        let lastTurn = gameState.turnHistory[gameState.turnHistory.length - 1];
-                        let piece = lastTurn.slice(0, 2);
-                        let source = squares.indexOf(lastTurn.slice(2, 4));
-                        let destination = squares.indexOf(lastTurn.slice(4, 6));
+                    if (lastMove && i >= 32 && i <= 39) {
+                        let piece = lastMove.slice(0, 2);
+                        let source = squares.indexOf(lastMove.slice(2, 4));
+                        let destination = squares.indexOf(lastMove.slice(4, 6));
 
                         if (piece == 'wP' && i % 8 != 7 && source == i + 17 && destination == i + 1) {
-                            legalMovesNoCheck.push('wP' + squares[i] + squares[i + 9]);
+                            legalMovesNoCheck.push('wP' + squares[i] + squares[i + 9] + 'ep');
                         }
                         if (piece == 'wP' && i % 8 != 0 && source == i + 15 && destination == i - 1) {
-                            legalMovesNoCheck.push('wP' + squares[i] + squares[i + 7]);
+                            legalMovesNoCheck.push('wP' + squares[i] + squares[i + 7] + 'ep');
                         }
                     }
                 } else if (piece[1] == 'N') {
-                    if (i >= 16 && i % 8 < 7 && (!gameState.board[i - 15] || !gameState.board[i - 15].startsWith('b'))) {
+                    if (i >= 16 && i % 8 < 7 && (!board[i - 15] || !board[i - 15].startsWith('b'))) {
                         legalMovesNoCheck.push('bN' + squares[i] + squares[i - 15]);
                     }
-                    if (i <= 47 && i % 8 > 0 && (!gameState.board[i + 15] || !gameState.board[i + 15].startsWith('b'))) {
+                    if (i <= 47 && i % 8 > 0 && (!board[i + 15] || !board[i + 15].startsWith('b'))) {
                         legalMovesNoCheck.push('bN' + squares[i] + squares[i + 15]);
                     }
-                    if (i >= 8 && i % 8 < 6 && (!gameState.board[i - 6] || !gameState.board[i - 6].startsWith('b'))) {
+                    if (i >= 8 && i % 8 < 6 && (!board[i - 6] || !board[i - 6].startsWith('b'))) {
                         legalMovesNoCheck.push('bN' + squares[i] + squares[i - 6]);
                     }
-                    if (i <= 55 && i % 8 > 1 && (!gameState.board[i + 6] || !gameState.board[i + 6].startsWith('b'))) {
+                    if (i <= 55 && i % 8 > 1 && (!board[i + 6] || !board[i + 6].startsWith('b'))) {
                         legalMovesNoCheck.push('bN' + squares[i] + squares[i + 6]);
                     }
-                    if (i >= 8 && i % 8 > 1 && (!gameState.board[i - 10] || !gameState.board[i - 10].startsWith('b'))) {
+                    if (i >= 8 && i % 8 > 1 && (!board[i - 10] || !board[i - 10].startsWith('b'))) {
                         legalMovesNoCheck.push('bN' + squares[i] + squares[i - 10]);
                     }
-                    if (i <= 55 && i % 8 < 6 && (!gameState.board[i + 10] || !gameState.board[i + 10].startsWith('b'))) {
+                    if (i <= 55 && i % 8 < 6 && (!board[i + 10] || !board[i + 10].startsWith('b'))) {
                         legalMovesNoCheck.push('bN' + squares[i] + squares[i + 10]);
                     }
-                    if (i >= 16 && i % 8 > 0 && (!gameState.board[i - 17] || !gameState.board[i - 17].startsWith('b'))) {
+                    if (i >= 16 && i % 8 > 0 && (!board[i - 17] || !board[i - 17].startsWith('b'))) {
                         legalMovesNoCheck.push('bN' + squares[i] + squares[i - 17]);
                     }
-                    if (i <= 47 && i % 8 < 7 && (!gameState.board[i + 17] || !gameState.board[i + 17].startsWith('b'))) {
+                    if (i <= 47 && i % 8 < 7 && (!board[i + 17] || !board[i + 17].startsWith('b'))) {
                         legalMovesNoCheck.push('bN' + squares[i] + squares[i + 17]);
                     }
                 } else if (piece[1] == 'B') {
                     let upRight = i;
                     while (upRight % 8 != 7 && upRight >= 8) {
                         upRight -= 7;
-                        if (gameState.board[upRight] && gameState.board[upRight].startsWith('w')) {
+                        if (board[upRight] && board[upRight].startsWith('w')) {
                             legalMovesNoCheck.push('bB' + squares[i] + squares[upRight]);
                             break;
                         }
-                        if (gameState.board[upRight] && gameState.board[upRight].startsWith('b')) {
+                        if (board[upRight] && board[upRight].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bB' + squares[i] + squares[upRight]);
@@ -425,11 +576,11 @@ export class LogicService {
                     let upLeft = i;
                     while (upLeft % 8 != 0 && upLeft >= 8) {
                         upLeft -= 9;
-                        if (gameState.board[upLeft] && gameState.board[upLeft].startsWith('w')) {
+                        if (board[upLeft] && board[upLeft].startsWith('w')) {
                             legalMovesNoCheck.push('bB' + squares[i] + squares[upLeft]);
                             break;
                         }
-                        if (gameState.board[upLeft] && gameState.board[upLeft].startsWith('b')) {
+                        if (board[upLeft] && board[upLeft].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bB' + squares[i] + squares[upLeft]);
@@ -437,11 +588,11 @@ export class LogicService {
                     let downRight = i;
                     while (downRight % 8 != 7 && downRight <= 55) {
                         downRight += 9;
-                        if (gameState.board[downRight] && gameState.board[downRight].startsWith('w')) {
+                        if (board[downRight] && board[downRight].startsWith('w')) {
                             legalMovesNoCheck.push('bB' + squares[i] + squares[downRight]);
                             break;
                         }
-                        if (gameState.board[downRight] && gameState.board[downRight].startsWith('b')) {
+                        if (board[downRight] && board[downRight].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bB' + squares[i] + squares[downRight]);
@@ -449,11 +600,11 @@ export class LogicService {
                     let downLeft = i;
                     while (downLeft % 8 != 0 && downLeft <= 55) {
                         downLeft += 7;
-                        if (gameState.board[downLeft] && gameState.board[downLeft].startsWith('w')) {
+                        if (board[downLeft] && board[downLeft].startsWith('w')) {
                             legalMovesNoCheck.push('bB' + squares[i] + squares[downLeft]);
                             break;
                         }
-                        if (gameState.board[downLeft] && gameState.board[downLeft].startsWith('b')) {
+                        if (board[downLeft] && board[downLeft].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bB' + squares[i] + squares[downLeft]);
@@ -462,11 +613,11 @@ export class LogicService {
                     let up = i;
                     while (up >= 8) {
                         up -= 8;
-                        if (gameState.board[up] && gameState.board[up].startsWith('w')) {
+                        if (board[up] && board[up].startsWith('w')) {
                             legalMovesNoCheck.push('bR' + squares[i] + squares[up]);
                             break;
                         }
-                        if (gameState.board[up] && gameState.board[up].startsWith('b')) {
+                        if (board[up] && board[up].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bR' + squares[i] + squares[up]);
@@ -474,11 +625,11 @@ export class LogicService {
                     let right = i;
                     while (right % 8 != 7) {
                         right++;
-                        if (gameState.board[right] && gameState.board[right].startsWith('w')) {
+                        if (board[right] && board[right].startsWith('w')) {
                             legalMovesNoCheck.push('bR' + squares[i] + squares[right]);
                             break;
                         }
-                        if (gameState.board[right] && gameState.board[right].startsWith('b')) {
+                        if (board[right] && board[right].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bR' + squares[i] + squares[right]);
@@ -486,11 +637,11 @@ export class LogicService {
                     let down = i;
                     while (down <= 55) {
                         down += 8;
-                        if (gameState.board[down] && gameState.board[down].startsWith('w')) {
+                        if (board[down] && board[down].startsWith('w')) {
                             legalMovesNoCheck.push('bR' + squares[i] + squares[down]);
                             break;
                         }
-                        if (gameState.board[down] && gameState.board[down].startsWith('b')) {
+                        if (board[down] && board[down].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bR' + squares[i] + squares[down]);
@@ -498,11 +649,11 @@ export class LogicService {
                     let left = i;
                     while (left % 8 != 0) {
                         left--;
-                        if (gameState.board[left] && gameState.board[left].startsWith('w')) {
+                        if (board[left] && board[left].startsWith('w')) {
                             legalMovesNoCheck.push('bR' + squares[i] + squares[left]);
                             break;
                         }
-                        if (gameState.board[left] && gameState.board[left].startsWith('b')) {
+                        if (board[left] && board[left].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bR' + squares[i] + squares[left]);
@@ -511,11 +662,11 @@ export class LogicService {
                     let up = i;
                     while (up >= 8) {
                         up -= 8;
-                        if (gameState.board[up] && gameState.board[up].startsWith('w')) {
+                        if (board[up] && board[up].startsWith('w')) {
                             legalMovesNoCheck.push('bQ' + squares[i] + squares[up]);
                             break;
                         }
-                        if (gameState.board[up] && gameState.board[up].startsWith('b')) {
+                        if (board[up] && board[up].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bQ' + squares[i] + squares[up]);
@@ -523,11 +674,11 @@ export class LogicService {
                     let right = i;
                     while (right % 8 != 7) {
                         right++;
-                        if (gameState.board[right] && gameState.board[right].startsWith('w')) {
+                        if (board[right] && board[right].startsWith('w')) {
                             legalMovesNoCheck.push('bQ' + squares[i] + squares[right]);
                             break;
                         }
-                        if (gameState.board[right] && gameState.board[right].startsWith('b')) {
+                        if (board[right] && board[right].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bQ' + squares[i] + squares[right]);
@@ -535,11 +686,11 @@ export class LogicService {
                     let down = i;
                     while (down <= 55) {
                         down += 8;
-                        if (gameState.board[down] && gameState.board[down].startsWith('w')) {
+                        if (board[down] && board[down].startsWith('w')) {
                             legalMovesNoCheck.push('bQ' + squares[i] + squares[down]);
                             break;
                         }
-                        if (gameState.board[down] && gameState.board[down].startsWith('b')) {
+                        if (board[down] && board[down].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bQ' + squares[i] + squares[down]);
@@ -547,11 +698,11 @@ export class LogicService {
                     let left = i;
                     while (left % 8 != 0) {
                         left--;
-                        if (gameState.board[left] && gameState.board[left].startsWith('w')) {
+                        if (board[left] && board[left].startsWith('w')) {
                             legalMovesNoCheck.push('bQ' + squares[i] + squares[left]);
                             break;
                         }
-                        if (gameState.board[left] && gameState.board[left].startsWith('b')) {
+                        if (board[left] && board[left].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bQ' + squares[i] + squares[left]);
@@ -559,11 +710,11 @@ export class LogicService {
                     let upRight = i;
                     while (upRight % 8 != 7 && upRight >= 8) {
                         upRight -= 7;
-                        if (gameState.board[upRight] && gameState.board[upRight].startsWith('w')) {
+                        if (board[upRight] && board[upRight].startsWith('w')) {
                             legalMovesNoCheck.push('bQ' + squares[i] + squares[upRight]);
                             break;
                         }
-                        if (gameState.board[upRight] && gameState.board[upRight].startsWith('b')) {
+                        if (board[upRight] && board[upRight].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bQ' + squares[i] + squares[upRight]);
@@ -571,11 +722,11 @@ export class LogicService {
                     let upLeft = i;
                     while (upLeft % 8 != 0 && upLeft >= 8) {
                         upLeft -= 9;
-                        if (gameState.board[upLeft] && gameState.board[upLeft].startsWith('w')) {
+                        if (board[upLeft] && board[upLeft].startsWith('w')) {
                             legalMovesNoCheck.push('bQ' + squares[i] + squares[upLeft]);
                             break;
                         }
-                        if (gameState.board[upLeft] && gameState.board[upLeft].startsWith('b')) {
+                        if (board[upLeft] && board[upLeft].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bQ' + squares[i] + squares[upLeft]);
@@ -583,11 +734,11 @@ export class LogicService {
                     let downRight = i;
                     while (downRight % 8 != 7 && downRight <= 55) {
                         downRight += 9;
-                        if (gameState.board[downRight] && gameState.board[downRight].startsWith('w')) {
+                        if (board[downRight] && board[downRight].startsWith('w')) {
                             legalMovesNoCheck.push('bQ' + squares[i] + squares[downRight]);
                             break;
                         }
-                        if (gameState.board[downRight] && gameState.board[downRight].startsWith('b')) {
+                        if (board[downRight] && board[downRight].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bQ' + squares[i] + squares[downRight]);
@@ -595,38 +746,38 @@ export class LogicService {
                     let downLeft = i;
                     while (downLeft % 8 != 0 && downLeft <= 55) {
                         downLeft += 7;
-                        if (gameState.board[downLeft] && gameState.board[downLeft].startsWith('w')) {
+                        if (board[downLeft] && board[downLeft].startsWith('w')) {
                             legalMovesNoCheck.push('bQ' + squares[i] + squares[downLeft]);
                             break;
                         }
-                        if (gameState.board[downLeft] && gameState.board[downLeft].startsWith('b')) {
+                        if (board[downLeft] && board[downLeft].startsWith('b')) {
                             break;
                         }
                         legalMovesNoCheck.push('bQ' + squares[i] + squares[downLeft]);
                     }
                 } else if (piece[1] == 'K') {
-                    if (i >= 8 && (!gameState.board[i - 8] || !gameState.board[i - 8].startsWith('b'))) {
+                    if (i >= 8 && (!board[i - 8] || !board[i - 8].startsWith('b'))) {
                         legalMovesNoCheck.push('bK' + squares[i] + squares[i - 8]);
                     }
-                    if (i % 8 != 7 && (!gameState.board[i + 1] || !gameState.board[i + 1].startsWith('b'))) {
+                    if (i % 8 != 7 && (!board[i + 1] || !board[i + 1].startsWith('b'))) {
                         legalMovesNoCheck.push('bK' + squares[i] + squares[i + 1]);
                     }
-                    if (i <= 55 && (!gameState.board[i + 8] || !gameState.board[i + 8].startsWith('b'))) {
+                    if (i <= 55 && (!board[i + 8] || !board[i + 8].startsWith('b'))) {
                         legalMovesNoCheck.push('bK' + squares[i] + squares[i + 8]);
                     }
-                    if (i % 8 != 0 && (!gameState.board[i - 1] || !gameState.board[i - 1].startsWith('b'))) {
+                    if (i % 8 != 0 && (!board[i - 1] || !board[i - 1].startsWith('b'))) {
                         legalMovesNoCheck.push('bK' + squares[i] + squares[i - 1]);
                     }
-                    if (i % 8 != 7 && i >= 8 && (!gameState.board[i - 7] || !gameState.board[i - 7].startsWith('b'))) {
+                    if (i % 8 != 7 && i >= 8 && (!board[i - 7] || !board[i - 7].startsWith('b'))) {
                         legalMovesNoCheck.push('bK' + squares[i] + squares[i - 7]);
                     }
-                    if (i % 8 != 0 && i >= 8 && (!gameState.board[i - 9] || !gameState.board[i - 9].startsWith('b'))) {
+                    if (i % 8 != 0 && i >= 8 && (!board[i - 9] || !board[i - 9].startsWith('b'))) {
                         legalMovesNoCheck.push('bK' + squares[i] + squares[i - 9]);
                     }
-                    if (i % 8 != 7 && i <= 55 && (!gameState.board[i + 9] || !gameState.board[i + 9].startsWith('b'))) {
+                    if (i % 8 != 7 && i <= 55 && (!board[i + 9] || !board[i + 9].startsWith('b'))) {
                         legalMovesNoCheck.push('bK' + squares[i] + squares[i + 9]);
                     }
-                    if (i % 8 != 0 && i <= 55 && (!gameState.board[i + 7] || !gameState.board[i + 7].startsWith('b'))) {
+                    if (i % 8 != 0 && i <= 55 && (!board[i + 7] || !board[i + 7].startsWith('b'))) {
                         legalMovesNoCheck.push('bK' + squares[i] + squares[i + 7]);
                     }
                 }
