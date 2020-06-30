@@ -4,6 +4,8 @@ import { Constants } from 'src/app/constants/constants';
 import { saveAs } from 'file-saver';
 import { GameSettings } from 'src/app/models/game-settings.model';
 import { LogicService } from 'src/app/services/logic.service';
+import { AiService } from 'src/app/services/ai.service';
+import { MoveResponse } from 'src/app/models/move-response.model';
 
 @Component({
     selector: 'chess',
@@ -21,7 +23,9 @@ export class ChessComponent {
     legalMoves: Array<string>;
     gameTimer: any;
 
-    constructor(private logicService: LogicService) {}
+    constructor(
+        private logicService: LogicService,
+        private aiService: AiService) {}
 
     ngOnInit() {
         this.gameState = this.initGameState();
@@ -125,6 +129,20 @@ export class ChessComponent {
         this.isBoardFlipped = !this.isBoardFlipped;
     }
 
+    playFromPosition() {
+        this.isEditMode = false;
+        this.gameState.gameSettings.isRealTime = false;
+        this.gameState.isGameOver = false;
+        this.gameState.turnHistory = new Array<string>();
+        this.gameState.whiteLostMaterialList = new Array<string>();
+        this.gameState.blackLostMaterialList = new Array<string>();
+        this.logicService.reset();
+        this.legalMoves = this.logicService.getLegalMoves(this.gameState);
+        this.aiService.getMove(this.gameState, this.legalMoves)?.then((response: MoveResponse) => {
+            this.onPieceMoved(response.move, true);
+        });
+    }
+
     startGame(settings) {
         this.gameState.gameSettings = settings;
         this.gameState.turnHistory = new Array<string>();
@@ -145,7 +163,12 @@ export class ChessComponent {
             this.gameState.board = this.getChess960Board();
         }
 
+        this.logicService.reset();
         this.legalMoves = this.logicService.getLegalMoves(this.gameState);
+        this.aiService.getMove(this.gameState, this.legalMoves)?.then((response: MoveResponse) => {
+            this.onPieceMoved(response.move, true);
+        });
+
         this.startTimer();
     }
 
@@ -154,11 +177,51 @@ export class ChessComponent {
         return Constants.DefaultBoard.slice();
     }
 
-    onPieceMoved(move) {
-        console.log(move);
+    onPieceMoved(move, isAi) {
+        if (isAi) {
+            let source = Constants.Squares.indexOf(move.slice(0, 2));
+            let destination = Constants.Squares.indexOf(move.slice(2, 4));
+
+            for (let i = 0; i < this.legalMoves.length; i++) {
+                let legalMove = this.legalMoves[i];
+
+                if (move.length == 4 && move == legalMove.slice(2, 6)) {
+                    move = legalMove;
+                    break;
+                }
+
+                if (move.length == 5 && legalMove.length == 7 && move == legalMove.slice(2, 7).toLowerCase()) {
+                    move = legalMove;
+                    break;
+                }
+
+                if (legalMove.endsWith('OO') && 
+                    legalMove.slice(2, 4) == move.slice(0, 2) &&
+                    legalMove[1] == 'K' &&
+                    Math.abs(destination - source) == 2
+                ) {
+                    if ((destination - source == 2 && !legalMove.endsWith('OOO')) ||
+                        (destination - source == -2 && legalMove.endsWith('OOO'))
+                    ) {
+                        move = legalMove;
+                        break;
+                    }
+                }
+            }
+        }
+
         this.logicService.makeMove(this.gameState, move);
         this.legalMoves = this.logicService.getLegalMoves(this.gameState);
-        this.startTimer();
+        if (this.gameState.isGameOver) {
+            if (this.gameTimer) {
+                clearInterval(this.gameTimer);
+            }
+        } else if (this.legalMoves?.length > 1) {
+            this.aiService.getMove(this.gameState, this.legalMoves)?.then((response: MoveResponse) => {
+                this.onPieceMoved(response.move, true);
+            });
+            this.startTimer();
+        }
     }
 
     startTimer() {

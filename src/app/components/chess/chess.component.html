@@ -37,9 +37,10 @@
                     [isEditMode]="isEditMode" 
                     [isBoardFlipped]="isBoardFlipped"
                     [legalMoves]="legalMoves"
+                    [turnHistory]="gameState.turnHistory"
                     (piecePlaced)="onPiecePlaced($event)" 
                     (pieceRemoved)="onPieceRemoved($event)"
-                    (pieceMoved)="onPieceMoved($event)">
+                    (pieceMoved)="onPieceMoved($event, false)">
                 </chess-board>
             </div>
             <div class="row">
@@ -61,8 +62,12 @@
                 (isBlackKingCastleAllowedToggled)="setBlackKingCastleAllowed($event)"
                 (isBlackQueenCastleAllowedToggled)="setBlackQueenCastleAllowed($event)"
                 (isWhiteToMoveChanged)="setIsWhiteToMove($event)"
-                (selectedEditPieceChanged)="setSelectedEditPiece($event)">
+                (selectedEditPieceChanged)="setSelectedEditPiece($event)"
+                (playFromPosition)="playFromPosition()">
             </edit-board>
+        </div>
+        <div *ngIf="!isEditMode && gameState.isGameOver" class="col-md-4 edit-board">
+            Winner is: {{gameState.winner}}
         </div>
     </div>
     <div class="modal fade" id="newGameModal" tabindex="-1" role="dialog" aria-labelledby="newGameModalLabel" aria-hidden="true">
@@ -79,5 +84,5 @@
             </div>
           </div>
         </div>
-      </div>
+    </div>
 </div>

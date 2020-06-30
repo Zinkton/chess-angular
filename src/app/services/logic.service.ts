@@ -7,6 +7,8 @@ import { Constants } from '../constants/constants';
 })
 export class LogicService {
 
+    boardHashMap: {[board: string]: number}
+
     constructor() { }
 
     getLegalMoves(gameState: GameState): Array<string> {
@@ -43,18 +45,29 @@ export class LogicService {
                 let isPieceInTheWay = false;
 
                 while (gameState.board[kingPosition + right] != 'wR') {
+                    if (kingPosition + right >= 64) {
+                        gameState.isWhiteKingCastleAllowed = false;
+                        break;
+                    }
+
                     if (gameState.board[kingPosition + right]) {
                         isPieceInTheWay = true;
                         break;
                     }
+
+                    right++;
+
+                    if ((kingPosition + right) % 8 == 0) {
+                        gameState.isWhiteKingCastleAllowed = false;
+                        break;
+                    }
                 }
                 
-                if (!isPieceInTheWay && 
-                    (kingPosition == 62 || kingPosition + right == 62 || !gameState.board[62]) && 
-                    (kingPosition == 63 || kingPosition + right == 63 || !gameState.board[63])
+                if (gameState.isWhiteKingCastleAllowed && !isPieceInTheWay && 
+                    kingPosition == 60 && kingPosition + right == 63
                 ) {
                     let isPathAttacked = false;
-                    for (let i = kingPosition + 1; i <= kingPosition + right; i++) {
+                    for (let i = kingPosition + 1; i < kingPosition + right; i++) {
                         legalEnemyMoves.forEach(enemyMove => {
                             let destination = enemyMove.slice(4, 6);
                             if (destination == squares[i]) {
@@ -72,17 +85,28 @@ export class LogicService {
                 let left = 1;
                 let isPieceInTheWay = false;
                 while (gameState.board[kingPosition - left] != 'wR') {
+                    if (kingPosition - left < 0) {
+                        gameState.isWhiteQueenCastleAllowed = false;
+                        break;
+                    }
+
                     if (gameState.board[kingPosition - left]) {
                         isPieceInTheWay = true;
                         break;
                     }
+
+                    left++;
+
+                    if ((kingPosition - left) % 8 == 7 || kingPosition - left < 0) {
+                        gameState.isWhiteQueenCastleAllowed = false;
+                        break;
+                    }
                 }
-                if (!isPieceInTheWay && 
-                    (kingPosition == 58 || kingPosition - left == 58 || !gameState.board[58]) && 
-                    (kingPosition == 59 || kingPosition - left == 59 || !gameState.board[59])
+                if (gameState.isWhiteQueenCastleAllowed && !isPieceInTheWay && 
+                    kingPosition == 60 && kingPosition - left == 56
                 ) {
                     let isPathAttacked = false;
-                    for (let i = kingPosition - 1; i >= kingPosition - left; i--) {
+                    for (let i = kingPosition - 1; i > kingPosition - left; i--) {
                         legalEnemyMoves.forEach(enemyMove => {
                             let destination = enemyMove.slice(4, 6);
                             if (destination == squares[i]) {
@@ -101,17 +125,28 @@ export class LogicService {
                 let right = 1;
                 let isPieceInTheWay = false;
                 while (gameState.board[kingPosition + right] != 'bR') {
+                    if (kingPosition + right >= 64) {
+                        gameState.isBlackKingCastleAllowed = false;
+                        break;
+                    }
+
                     if (gameState.board[kingPosition + right]) {
                         isPieceInTheWay = true;
                         break;
                     }
+
+                    right++;
+
+                    if ((kingPosition + right) % 8 == 0) {
+                        gameState.isBlackKingCastleAllowed = false;
+                        break;
+                    }
                 }
-                if (!isPieceInTheWay && 
-                    (kingPosition == 5 || kingPosition + right == 5 || !gameState.board[5]) && 
-                    (kingPosition == 6 || kingPosition + right == 6 || !gameState.board[6])
+                if (gameState.isBlackKingCastleAllowed && !isPieceInTheWay && 
+                    kingPosition == 4 && kingPosition + right == 7
                 ) {
                     let isPathAttacked = false;
-                    for (let i = kingPosition + 1; i <= kingPosition + right; i++) {
+                    for (let i = kingPosition + 1; i < kingPosition + right; i++) {
                         legalEnemyMoves.forEach(enemyMove => {
                             let destination = enemyMove.slice(4, 6);
                             if (destination == squares[i]) {
@@ -129,17 +164,28 @@ export class LogicService {
                 let left = 1;
                 let isPieceInTheWay = false;
                 while (gameState.board[kingPosition - left] != 'bR') {
+                    if (kingPosition - left < 0) {
+                        gameState.isBlackQueenCastleAllowed = false;
+                        break;
+                    }
+
                     if (gameState.board[kingPosition - left]) {
                         isPieceInTheWay = true;
                         break;
                     }
+
+                    left++;
+
+                    if ((kingPosition - left) % 8 == 7 || kingPosition - left < 0) {
+                        gameState.isBlackQueenCastleAllowed = false;
+                        break;
+                    }
                 }
-                if (!isPieceInTheWay && 
-                    (kingPosition == 2 || kingPosition - left == 2 || !gameState.board[2]) && 
-                    (kingPosition == 3 || kingPosition - left == 3 || !gameState.board[3])
+                if (gameState.isBlackQueenCastleAllowed && !isPieceInTheWay && 
+                    kingPosition == 4 && kingPosition - left == 0
                 ) {
                     let isPathAttacked = false;
-                    for (let i = kingPosition - 1; i >= kingPosition - left; i--) {
+                    for (let i = kingPosition - 1; i > kingPosition - left; i--) {
                         legalEnemyMoves.forEach(enemyMove => {
                             let destination = enemyMove.slice(4, 6);
                             if (destination == squares[i]) {
@@ -458,7 +504,7 @@ export class LogicService {
                         legalMovesNoCheck.push('wQ' + squares[i] + squares[downLeft]);
                     }
                 } else if (piece[1] == 'K') {
-                    if (i >= 8 && (!board || !board[i - 8].startsWith('w'))) {
+                    if (i >= 8 && (!board[i - 8] || !board[i - 8].startsWith('w'))) {
                         legalMovesNoCheck.push('wK' + squares[i] + squares[i - 8]);
                     }
                     if (i % 8 != 7 && (!board[i + 1] || !board[i + 1].startsWith('w'))) {
@@ -502,7 +548,7 @@ export class LogicService {
                         legalMovesNoCheck.push('bP' + squares[i] + squares[i + 16]);
                     }
                     // Attack
-                    if (i % 8 != 7 && board[i + 9] && board[i + 9].startsWith('b')) {
+                    if (i % 8 != 7 && board[i + 9] && board[i + 9].startsWith('w')) {
                         if (i + 9 >= 56) {
                             legalMovesNoCheck.push('bP' + squares[i] + squares[i + 9] + 'Q');
                             legalMovesNoCheck.push('bP' + squares[i] + squares[i + 9] + 'N');
@@ -512,7 +558,7 @@ export class LogicService {
                             legalMovesNoCheck.push('bP' + squares[i] + squares[i + 9]);
                         }
                     }
-                    if (i % 8 != 0 && board[i + 7] && board[i + 7].startsWith('b')) {
+                    if (i % 8 != 0 && board[i + 7] && board[i + 7].startsWith('w')) {
                         if (i + 7 >= 56) {
                             legalMovesNoCheck.push('bP' + squares[i] + squares[i + 7] + 'Q');
                             legalMovesNoCheck.push('bP' + squares[i] + squares[i + 7] + 'N');
@@ -529,10 +575,10 @@ export class LogicService {
                         let destination = squares.indexOf(lastMove.slice(4, 6));
 
                         if (piece == 'wP' && i % 8 != 7 && source == i + 17 && destination == i + 1) {
-                            legalMovesNoCheck.push('wP' + squares[i] + squares[i + 9] + 'ep');
+                            legalMovesNoCheck.push('bP' + squares[i] + squares[i + 9] + 'ep');
                         }
                         if (piece == 'wP' && i % 8 != 0 && source == i + 15 && destination == i - 1) {
-                            legalMovesNoCheck.push('wP' + squares[i] + squares[i + 7] + 'ep');
+                            legalMovesNoCheck.push('bP' + squares[i] + squares[i + 7] + 'ep');
                         }
                     }
                 } else if (piece[1] == 'N') {
@@ -792,12 +838,62 @@ export class LogicService {
             return false;
         }
 
+        var isPiecesLeft = false;
+
+        gameState.board.forEach(s => {
+            if (s != null && s != 'wK' && s!= 'bK') {
+                isPiecesLeft = true;
+            }
+        })
+
+        if (!isPiecesLeft) {
+            gameState.winner = 'd';
+            return true;
+        }
+
+        let boardString = gameState.board.join(';');
+        if (!this.boardHashMap[boardString]) {
+            this.boardHashMap[boardString] = 1;
+        } else {
+            this.boardHashMap[boardString]++;
+        }
+        if (this.boardHashMap[boardString] >= 3) {
+            gameState.winner = "d";
+            return true;
+        }
+
+        let legalMoves = this.getLegalMoves(gameState);
+        if (legalMoves.length == 1) {
+            gameState.winner = gameState.isWhiteToMove ? 'b' : 'w';
+            return true;
+        }
+
         let lastMove = gameState.turnHistory[gameState.turnHistory.length - 1];
-        if (lastMove == 'resign' || lastMove.endsWith('#')) {
+        if (lastMove == 'resign') {
+            return true;
+        }
+
+        let halfMoveCount = 0;
+        if (gameState.turnHistory.length > 0) {
+            for (var i = gameState.turnHistory.length - 1; i >= 0; i--) {
+                let move = gameState.turnHistory[i];
+                if (move[1] == 'P' || move.endsWith('x')) {
+                    break;
+                }
+                halfMoveCount++;
+            }
+        }
+
+        if (halfMoveCount >= 50) {
+            gameState.winner = 'd';
             return true;
         }
 
         return false;
+    }
+
+    reset() {
+        this.boardHashMap = { };
     }
 
     substractSecond(gameState: GameState): boolean {
@@ -821,6 +917,124 @@ export class LogicService {
     }
 
     makeMove(gameState: GameState, move: string) {
+        let squares = Constants.Squares.slice();
+        let piece = move.slice(0, 2);
+        let source = squares.indexOf(move.slice(2, 4));
+        let destination = squares.indexOf(move.slice(4, 6));
+        let isCapture = false;
 
+        if (piece[1] == 'K' && move.endsWith('OO')) {
+            gameState.board[source] = null;
+            let rook = gameState.board[destination];
+            gameState.board[destination] = null;
+            if (piece[0] == 'w' && move.slice(6) == 'OO') {
+                gameState.board[62] = piece;
+                gameState.board[61] = rook;
+                gameState.isWhiteKingCastleAllowed = false;
+                gameState.isWhiteQueenCastleAllowed = false;
+            }
+            if (piece[0] == 'w' && move.slice(6) == 'OOO') {
+                gameState.board[58] = piece;
+                gameState.board[59] = rook;
+                gameState.isWhiteKingCastleAllowed = false;
+                gameState.isWhiteQueenCastleAllowed = false;
+            }
+            if (piece[0] == 'b' && move.slice(6) == 'OO') {
+                gameState.board[6] = piece;
+                gameState.board[5] = rook;
+                gameState.isBlackKingCastleAllowed = false;
+                gameState.isBlackQueenCastleAllowed = false;
+            }
+            if (piece[0] == 'b' && move.slice(6) == 'OOO') {
+                gameState.board[2] = piece;
+                gameState.board[3] = rook;
+                gameState.isBlackKingCastleAllowed = false;
+                gameState.isBlackQueenCastleAllowed = false;
+            }
+        } else {
+            if (piece == 'wK') {
+                gameState.isWhiteKingCastleAllowed = false;
+                gameState.isWhiteQueenCastleAllowed = false;
+            }
+            if (piece == 'bK') {
+                gameState.isBlackKingCastleAllowed = false;
+                gameState.isBlackQueenCastleAllowed = false;
+            }
+            // ToDo: Chess960 checks
+            if (gameState.isWhiteKingCastleAllowed) {
+                if (piece == 'wR' && source == 63) {
+                    gameState.isWhiteKingCastleAllowed = false;
+                }
+            }
+            if (gameState.isWhiteQueenCastleAllowed) {
+                if (piece == 'wR' && source == 56) {
+                    gameState.isWhiteQueenCastleAllowed = false;
+                }
+            }
+            if (gameState.isBlackKingCastleAllowed) {
+                if (piece == 'bR' && source == 7) {
+                    gameState.isBlackKingCastleAllowed = false;
+                }
+            }
+            if (gameState.isBlackQueenCastleAllowed) {
+                if (piece == 'bR' && source == 0) {
+                    gameState.isBlackQueenCastleAllowed = false;
+                }
+            }
+
+            gameState.board[source] = null;
+
+            if (gameState.board[destination]) {
+                isCapture = true;
+
+                if (gameState.board[destination][0] == 'w') {
+                    gameState.whiteLostMaterialList.push(gameState.board[destination]);
+                    if (destination == 63) {
+                        gameState.isWhiteKingCastleAllowed = false;
+                    } else if (destination == 56) {
+                        gameState.isWhiteQueenCastleAllowed = false;
+                    }
+                } else {
+                    gameState.blackLostMaterialList.push(gameState.board[destination]);
+                    if (destination == 7) {
+                        gameState.isBlackKingCastleAllowed = false;
+                    } else if (destination == 0) {
+                        gameState.isBlackQueenCastleAllowed = false;
+                    }
+                }
+            }
+            
+            gameState.board[destination] = piece;
+            if (piece[1] == 'P' && move.length == 7) {
+                gameState.board[destination] = piece[0] + move[6];
+            } else if (piece[1] == 'P' && move.length == 8 && move.slice(6, 8) == 'ep') {
+                isCapture = true;
+                if (move[0] == 'w') {
+                    gameState.blackLostMaterialList.push(gameState.board[destination + 8]);
+                    gameState.board[destination + 8] = null;
+                } else {
+                    gameState.blackLostMaterialList.push(gameState.board[destination - 8]);
+                    gameState.board[destination - 8] = null;
+                }
+            }
+        }
+
+        if (gameState.gameSettings.isRealTime) {
+            if (gameState.isWhiteToMove) {
+                gameState.whitePlayerRemainingSeconds += gameState.gameSettings.incrementSeconds;
+            } else {
+                gameState.blackPlayerRemainingSeconds += gameState.gameSettings.incrementSeconds;
+            }
+        }
+
+        gameState.isWhiteToMove = !gameState.isWhiteToMove;
+        if (isCapture) {
+            gameState.turnHistory.push(move + 'x');
+        } else {
+            gameState.turnHistory.push(move);
+        }
+        
+        gameState.turnHistory = gameState.turnHistory.slice();
+        gameState.isGameOver = this.isGameOver(gameState);
     }
 }

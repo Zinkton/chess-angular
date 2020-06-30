@@ -15,6 +15,7 @@ export class EditBoardComponent implements OnInit {
     @Output() isBlackQueenCastleAllowedToggled = new EventEmitter<boolean>();
     @Output() isWhiteToMoveChanged = new EventEmitter<boolean>();
     @Output() selectedEditPieceChanged = new EventEmitter<string>();
+    @Output() playFromPosition = new EventEmitter();
 
     pieces: Array<string>;
     isWhiteKingCastleAllowed: boolean;
@@ -63,16 +64,15 @@ export class EditBoardComponent implements OnInit {
     }
 
     selectPiece(event) {
-        if (this.selectedPiece == event) {
-            this.selectedPiece = null;
-        } else {
-            this.selectedPiece = event;
-        }
-
+        this.selectedPiece = event;
         this.selectedEditPieceChanged.next(this.selectedPiece);
     }
 
     onClearBoardClick() {
         this.clearBoard.next();
+    }
+
+    onPlayFromPositionClick() {
+        this.playFromPosition.next();
     }
 }

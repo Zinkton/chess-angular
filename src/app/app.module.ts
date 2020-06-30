@@ -10,6 +10,7 @@ import { TimeComponent } from './components/time/time.component';
 import { ChessBoardComponent } from './components/chess-board/chess-board.component';
 import { EditBoardComponent } from './components/edit-board/edit-board.component';
 import { HttpClientModule } from '@angular/common/http';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { HttpClientModule } from '@angular/common/http';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    NgbModule
   ],
   providers: [],
   bootstrap: [AppComponent]

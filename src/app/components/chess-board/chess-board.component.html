@@ -1,8 +1,8 @@
-<div class="chess-board">
+<div *ngIf="!isShowPromotion" class="chess-board">
     <div *ngIf="isBoardFlipped" class="grid-container">
         <div *ngFor="let i of boardIndexes.slice().reverse()"
             class="grid-item-container"
-            [ngClass]="{'active-grid-item': board[i], 'selected-piece': i == clickedSquare, 'legal-square': legalSquares.includes(i)}"
+            [ngClass]="{'active-grid-item': board[i], 'selected-piece': i == clickedSquare, 'legal-square': legalSquares.includes(i), 'last-move': lastMoveSquares.includes(i)}"
             id="{{squares[i]}}" 
             (drop)="onDrop($event, squares[i])" 
             (dragover)="onDragover($event)"
@@ -21,7 +21,7 @@
     <div *ngIf="!isBoardFlipped" class="grid-container">
         <div *ngFor="let i of boardIndexes"
             class="grid-item-container"
-            [ngClass]="{'active-grid-item': board[i], 'selected-piece': i == clickedSquare, 'legal-square': legalSquares.includes(i)}"
+            [ngClass]="{'active-grid-item': board[i], 'selected-piece': i == clickedSquare, 'legal-square': legalSquares.includes(i), 'last-move': lastMoveSquares.includes(i)}"
             id="{{squares[i]}}" 
             (drop)="onDrop($event, squares[i])" 
             (dragover)="onDragover($event)"
@@ -30,12 +30,18 @@
             (mouseenter)="onMouseEnter(squares[i])"
             (contextmenu)="preventContextMenu($event)">
             <div *ngIf="board[i]" 
-            class="grid-item" 
-            [ngClass]="board[i]" 
-            [draggable]="!isEditMode" 
-            (dragstart)="onDragStart($event, squares[i], board[i])">
-        </div>
+                class="grid-item" 
+                [ngClass]="board[i]" 
+                [draggable]="!isEditMode" 
+                (dragstart)="onDragStart($event, squares[i], board[i])">
+            </div>
         </div>
     </div>
     <div class="background"></div>
+</div>
+<div *ngIf="isShowPromotion">
+    <button type="button" class="btn btn-secondary action-button" (click)="promotePawn('Q')">Queen</button>
+    <button type="button" class="btn btn-secondary action-button" (click)="promotePawn('R')">Rook</button>
+    <button type="button" class="btn btn-secondary action-button" (click)="promotePawn('B')">Bishop</button>
+    <button type="button" class="btn btn-secondary action-button" (click)="promotePawn('N')">Knight</button>
 </div>

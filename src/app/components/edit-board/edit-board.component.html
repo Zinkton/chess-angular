@@ -33,5 +33,6 @@
         <button type="button" class="btn btn-secondary" [ngClass]="{'active': isWhiteToMove}" (click)="onWhiteToMoveChanged(true)">White</button>
         <button type="button" class="btn btn-secondary" [ngClass]="{'active': !isWhiteToMove}" (click)="onWhiteToMoveChanged(false)">Black</button>
     </div>
+    <button type="button" class="btn btn-secondary action-button" (click)="onPlayFromPositionClick()">Play From Current Position</button>
 </div>
 

@@ -39,11 +39,11 @@ export class NewGameFormComponent implements OnInit {
   }
 
   onMinutesPerSideChange(event) {
-    this.gameSettings.minutesPerSide = event.target.value;
+    this.gameSettings.minutesPerSide = parseInt(event.target.value);
   }
 
   onIncrementSecondsChange(event) {
-    this.gameSettings.incrementSeconds = event.target.value;
+    this.gameSettings.incrementSeconds = parseInt(event.target.value);
   }
 
   onWhitePlayerNameChange(event) {

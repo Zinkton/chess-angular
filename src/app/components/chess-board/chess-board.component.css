@@ -23,6 +23,10 @@
     padding-top: 100%;
 }
 
+.last-move {
+    background: rgba(255, 100, 100, 0.5);
+}
+
 .background { 
     background-image: url(../../../assets/Chess_board.svg);
     width: 100%;
@@ -40,9 +44,9 @@
 }
 
 .selected-piece {
-    background: rgba(50, 255, 50, 0.25);
+    background: rgba(50, 255, 50, 0.5);
 }
 
 .legal-square {
-    background: rgba(100, 255, 100, 0.25);
+    background: rgba(100, 255, 100, 0.5) !important;
 }
