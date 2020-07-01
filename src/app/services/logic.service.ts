@@ -20,6 +20,7 @@ export class LogicService {
         let lastMove = gameState.turnHistory ? gameState.turnHistory[gameState.turnHistory.length - 1] : null;
         let legalMovesNoCheck = this.getLegalNonCheckMoves(gameState.board.slice(), lastMove, gameState.isWhiteToMove);
         let legalMoves = new Array<string>();
+        legalMoves.push('resign');
 
         legalMovesNoCheck.forEach(move => {
             let board = this.makeFakeMove(gameState.board.slice(), move);
@@ -36,6 +37,9 @@ export class LogicService {
             }
         });
 
+        if (this.isCheck(gameState)) {
+            return legalMoves;
+        }
 
         let legalEnemyMoves = this.getLegalNonCheckMoves(gameState.board.slice(), null, !gameState.isWhiteToMove);
         if (gameState.isWhiteToMove) {
@@ -199,8 +203,6 @@ export class LogicService {
                 }
             }
         }
-
-        legalMoves.push('resign');
 
         return legalMoves;
     }
@@ -864,7 +866,12 @@ export class LogicService {
 
         let legalMoves = this.getLegalMoves(gameState);
         if (legalMoves.length == 1) {
-            gameState.winner = gameState.isWhiteToMove ? 'b' : 'w';
+            if (this.isCheck(gameState)) {
+                gameState.winner = gameState.isWhiteToMove ? 'b' : 'w';
+            } else {
+                gameState.winner = 'd';
+            }
+            
             return true;
         }
 
@@ -890,6 +897,20 @@ export class LogicService {
         }
 
         return false;
+    }
+
+    isCheck(gameState: GameState): boolean {
+        let legalEnemyMoves = this.getLegalNonCheckMoves(gameState.board.slice(), null, !gameState.isWhiteToMove);
+        let isCheck = false;
+
+        legalEnemyMoves.forEach(enemyMove => {
+            let destination = Constants.Squares.indexOf(enemyMove.slice(4, 6));
+            if (gameState.board[destination] && gameState.board[destination][1] == 'K') {
+                isCheck = true;
+            }
+        });
+
+        return isCheck
     }
 
     reset() {
@@ -989,6 +1010,7 @@ export class LogicService {
 
                 if (gameState.board[destination][0] == 'w') {
                     gameState.whiteLostMaterialList.push(gameState.board[destination]);
+                    gameState.whiteLostMaterialList = gameState.whiteLostMaterialList.slice();
                     if (destination == 63) {
                         gameState.isWhiteKingCastleAllowed = false;
                     } else if (destination == 56) {
@@ -996,6 +1018,7 @@ export class LogicService {
                     }
                 } else {
                     gameState.blackLostMaterialList.push(gameState.board[destination]);
+                    gameState.blackLostMaterialList = gameState.blackLostMaterialList.slice();
                     if (destination == 7) {
                         gameState.isBlackKingCastleAllowed = false;
                     } else if (destination == 0) {

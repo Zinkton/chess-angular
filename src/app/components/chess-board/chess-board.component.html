@@ -2,7 +2,11 @@
     <div *ngIf="isBoardFlipped" class="grid-container">
         <div *ngFor="let i of boardIndexes.slice().reverse()"
             class="grid-item-container"
-            [ngClass]="{'active-grid-item': board[i], 'selected-piece': i == clickedSquare, 'legal-square': legalSquares.includes(i), 'last-move': lastMoveSquares.includes(i)}"
+            [ngClass]="{'active-grid-item': board[i], 
+                        'selected-piece': i == clickedSquare, 
+                        'legal-square': legalSquares.includes(i), 
+                        'last-move': lastMoveSquares.includes(i),
+                        'check': i == checkedSquare}"
             id="{{squares[i]}}" 
             (drop)="onDrop($event, squares[i])" 
             (dragover)="onDragover($event)"
@@ -21,7 +25,11 @@
     <div *ngIf="!isBoardFlipped" class="grid-container">
         <div *ngFor="let i of boardIndexes"
             class="grid-item-container"
-            [ngClass]="{'active-grid-item': board[i], 'selected-piece': i == clickedSquare, 'legal-square': legalSquares.includes(i), 'last-move': lastMoveSquares.includes(i)}"
+            [ngClass]="{'active-grid-item': board[i], 
+                        'selected-piece': i == clickedSquare, 
+                        'legal-square': legalSquares.includes(i), 
+                        'last-move': lastMoveSquares.includes(i),
+                        'check': i == checkedSquare}"
             id="{{squares[i]}}" 
             (drop)="onDrop($event, squares[i])" 
             (dragover)="onDragover($event)"

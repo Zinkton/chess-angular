@@ -1,0 +1,9 @@
+.material {
+    display: inline;
+}
+
+.score {
+    font-size: large;
+    text-align: center;
+    line-height: 20px;
+}

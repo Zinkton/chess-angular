@@ -50,3 +50,7 @@
 .legal-square {
     background: rgba(100, 255, 100, 0.5) !important;
 }
+
+.check {
+    background: rgba(100, 100, 255, 0.5)
+}

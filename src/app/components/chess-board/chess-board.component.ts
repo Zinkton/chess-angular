@@ -13,6 +13,8 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     @Input() isBoardFlipped: boolean;
     @Input() legalMoves: Array<string>;
     @Input() turnHistory: Array<string>;
+    @Input() isCheck: boolean;
+    @Input() isWhiteMove: boolean;
     @Output() piecePlaced = new EventEmitter<string>();
     @Output() pieceRemoved = new EventEmitter<string>();
     @Output() pieceMoved = new EventEmitter<string>();
@@ -27,6 +29,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     isShowPromotion: boolean;
     pawnMoveForPromote: string;
     lastMoveSquares: Array<number>;
+    checkedSquare: number;
 
     constructor(private modalService: NgbModal) {}
 
@@ -40,6 +43,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
         this.isShowPromotion = false;
         this.pawnMoveForPromote = null;
         this.lastMoveSquares = new Array<number>();
+        this.checkedSquare = null;
     }
 
     ngOnChanges() {
@@ -53,6 +57,13 @@ export class ChessBoardComponent implements OnInit, OnChanges {
         let lastSource = this.squares.indexOf(move.slice(2, 4));
         let lastDestination = this.squares.indexOf(move.slice(4, 6));
         this.lastMoveSquares = [lastSource, lastDestination];
+
+        if (this.isCheck) {
+            let king = this.isWhiteMove ? 'wK' : 'bK';
+            this.checkedSquare = this.board.indexOf(king);
+        } else {
+            this.checkedSquare = null;
+        }
     }
 
     onDragover(event) {

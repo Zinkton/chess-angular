@@ -22,6 +22,8 @@ export class ChessComponent {
     isBoardFlipped: boolean;
     legalMoves: Array<string>;
     gameTimer: any;
+    isCheck: boolean;
+    white: boolean;
 
     constructor(
         private logicService: LogicService,
@@ -33,6 +35,8 @@ export class ChessComponent {
         this.selectedEditPiece = null;
         this.isBoardFlipped = false;
         this.legalMoves = null;
+        this.isCheck = false;
+        this.white = true;
     }
 
     toggleEdit() {
@@ -165,6 +169,7 @@ export class ChessComponent {
 
         this.logicService.reset();
         this.legalMoves = this.logicService.getLegalMoves(this.gameState);
+        this.isCheck = this.logicService.isCheck(this.gameState);
         this.aiService.getMove(this.gameState, this.legalMoves)?.then((response: MoveResponse) => {
             this.onPieceMoved(response.move, true);
         });
@@ -212,6 +217,7 @@ export class ChessComponent {
 
         this.logicService.makeMove(this.gameState, move);
         this.legalMoves = this.logicService.getLegalMoves(this.gameState);
+        this.isCheck = this.logicService.isCheck(this.gameState);
         if (this.gameState.isGameOver) {
             if (this.gameTimer) {
                 clearInterval(this.gameTimer);

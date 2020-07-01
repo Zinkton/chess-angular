@@ -30,7 +30,11 @@
                     <time class="time" [totalSeconds]="isBoardFlipped ? gameState.whitePlayerRemainingSeconds : gameState.blackPlayerRemainingSeconds"></time>
                 </div>
             </div>
-            <material [materialList]="gameState.whiteLostMaterialList"></material>
+            <material 
+                [materialList]="gameState.whiteLostMaterialList"
+                [enemyMaterialList]="gameState.blackLostMaterialList"
+                [isWhite]="white">
+            </material>
             <div>
                 <chess-board 
                     [board]="gameState.board" 
@@ -38,6 +42,8 @@
                     [isBoardFlipped]="isBoardFlipped"
                     [legalMoves]="legalMoves"
                     [turnHistory]="gameState.turnHistory"
+                    [isCheck]="isCheck"
+                    [isWhiteMove]="gameState.isWhiteToMove"
                     (piecePlaced)="onPiecePlaced($event)" 
                     (pieceRemoved)="onPieceRemoved($event)"
                     (pieceMoved)="onPieceMoved($event, false)">
@@ -51,7 +57,11 @@
                     <time class="time" [totalSeconds]="isBoardFlipped ? gameState.blackPlayerRemainingSeconds : gameState.whitePlayerRemainingSeconds"></time>
                 </div>
             </div>
-            <material [materialList]="gameState.blackLostMaterialList"></material>
+            <material 
+                [materialList]="gameState.blackLostMaterialList"
+                [enemyMaterialList]="gameState.whiteLostMaterialList"
+                [isWhite]="!white">
+            </material>
         </div>
         <div *ngIf="isEditMode" class="col-md-4 edit-board">
             <edit-board 
@@ -66,8 +76,16 @@
                 (playFromPosition)="playFromPosition()">
             </edit-board>
         </div>
-        <div *ngIf="!isEditMode && gameState.isGameOver" class="col-md-4 edit-board">
-            Winner is: {{gameState.winner}}
+        
+        <div *ngIf="!isEditMode" class="col-md-4 history">
+            <div *ngIf="gameState.isGameOver" class="edit-board winner">
+                Winner is: {{gameState.winner}}
+            </div>
+            <div class="row">
+                <div *ngFor="let turn of gameState.turnHistory; let i = index" class="col-md-6 center">
+                    {{i}}: {{turn}}
+                </div>
+            </div>
         </div>
     </div>
     <div class="modal fade" id="newGameModal" tabindex="-1" role="dialog" aria-labelledby="newGameModalLabel" aria-hidden="true">
