@@ -9,6 +9,8 @@ export class MaterialComponent implements OnInit, OnChanges {
   @Input() materialList: Array<string>;
   @Input() enemyMaterialList: Array<string>;
   @Input() isWhite: boolean;
+  @Input() isBoardFlipped: boolean;
+  @Input() board: Array<string>;
 
   pawnCount: number;
   knightCount: number;
@@ -25,15 +27,16 @@ export class MaterialComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.reset();
+  }
+
+  reset() {
     let side = this.isWhite ? 'w' : 'b'
+    side = this.isBoardFlipped ? side == 'w' ? 'b' : 'w' : side;
     this.p = side + 'P';
     this.n = side + 'N';
     this.b = side + 'B';
     this.r = side + 'R';
     this.q = side + 'Q';
-  }
-
-  reset() {
     this.pawnCount = 0;
     this.knightCount = 0;
     this.bishopCount = 0;
@@ -50,7 +53,15 @@ export class MaterialComponent implements OnInit, OnChanges {
       return;
     }
     
-    this.materialList?.forEach(material => {
+    let allyMaterial = this.materialList;
+    let enemyMaterialList = this.enemyMaterialList;
+
+    if (this.isBoardFlipped) {
+      allyMaterial = this.enemyMaterialList;
+      enemyMaterialList = this.materialList;
+    }
+    
+    allyMaterial?.forEach(material => {
       if (material[1] == 'P') {
         this.pawnCount++;
       } else if (material[1] == 'N') {
@@ -64,20 +75,43 @@ export class MaterialComponent implements OnInit, OnChanges {
       }
     });
 
-    this.enemyMaterialList?.forEach(material => {
-      if (material[1] == 'P') {
-        this.enemyScore += 1;
-      } else if (material[1] == 'N') {
-        this.enemyScore += 3;
-      } else if (material[1] == 'B') {
-        this.enemyScore += 3;
-      } else if (material[1] == 'R') {
-        this.enemyScore += 5;
-      } else if (material[1] == 'Q') {
-        this.enemyScore += 9;
+    let whiteScore = 0;
+    let blackScore = 0;
+    this.board.forEach(square => {
+      switch (square) {
+        case 'wP':
+          whiteScore += 1;
+          break;
+        case 'wN':
+          whiteScore += 3;
+          break;
+        case 'wB':
+          whiteScore += 3;
+          break;
+        case 'wR':
+          whiteScore += 5;
+          break;
+        case 'wQ':
+          whiteScore += 9;
+          break;
+        case 'bP':
+          blackScore += 1;
+          break;
+        case 'bN':
+          blackScore += 3;
+          break;
+        case 'bB':
+          blackScore += 3;
+          break;
+        case 'bR':
+          blackScore += 5;
+          break;
+        case 'bQ':
+          blackScore += 9;
+          break;
       }
     });
-
-    this.score = this.pawnCount + this.knightCount * 3 + this.bishopCount * 3 + this.rookCount * 5 + this.queenCount * 9 - this.enemyScore;    
+    let score = this.isWhite ? blackScore - whiteScore : whiteScore - blackScore;
+    this.score = this.isBoardFlipped ? -score : score;   
   }
 }

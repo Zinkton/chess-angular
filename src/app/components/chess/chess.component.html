@@ -33,7 +33,9 @@
             <material 
                 [materialList]="gameState.whiteLostMaterialList"
                 [enemyMaterialList]="gameState.blackLostMaterialList"
-                [isWhite]="white">
+                [isWhite]="white"
+                [isBoardFlipped]='isBoardFlipped'
+                [board]='gameState.board'>
             </material>
             <div>
                 <chess-board 
@@ -60,7 +62,9 @@
             <material 
                 [materialList]="gameState.blackLostMaterialList"
                 [enemyMaterialList]="gameState.whiteLostMaterialList"
-                [isWhite]="!white">
+                [isWhite]="!white"
+                [isBoardFlipped]='isBoardFlipped'
+                [board]='gameState.board'>
             </material>
         </div>
         <div *ngIf="isEditMode" class="col-md-4 edit-board">
