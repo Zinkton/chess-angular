@@ -19,13 +19,14 @@ export class NewGameFormComponent implements OnInit {
     let gameSettings = new GameSettings();
 
     gameSettings.startingPosition = "Standard";
-    gameSettings.isRealTime = true;
+    gameSettings.isRealTime = false;
     gameSettings.minutesPerSide = 5;
     gameSettings.incrementSeconds = 5;
     gameSettings.whitePlayerName = "Player 1";
     gameSettings.whitePlayerAiEndpoint = "";
     gameSettings.blackPlayerName = "Player 2";
     gameSettings.blackPlayerAiEndpoint = "";
+    gameSettings.isCasual = false;
 
     return gameSettings;
   }

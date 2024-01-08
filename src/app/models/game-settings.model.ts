@@ -7,4 +7,5 @@ export class GameSettings {
     public whitePlayerAiEndpoint: string;
     public blackPlayerName: string;
     public blackPlayerAiEndpoint: string;
+    public isCasual: boolean;
 }

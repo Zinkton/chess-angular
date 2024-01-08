@@ -20,31 +20,34 @@
             <div>
                 <button type="button" class="btn btn-secondary action-button" (click)="onFlipBoardClick()">Flip Board</button>
             </div>
+            <div>
+                <button type="button" class="btn btn-secondary action-button" (click)="onTakeBackClick()">Take back move</button>
+            </div>
         </div>
         <div class="col-md-5">
             <div class="row">
                 <div class="col-md-6">
-                    <div class="player-name">{{ isBoardFlipped ? gameState.gameSettings.whitePlayerName : gameState.gameSettings.blackPlayerName }}</div>
+                    <div class="player-name">{{ gameState.isBoardFlipped ? gameState.gameSettings.whitePlayerName : gameState.gameSettings.blackPlayerName }}</div>
                 </div>
                 <div *ngIf="gameState.gameSettings.isRealTime" class="col-md-6">
-                    <time class="time" [totalSeconds]="isBoardFlipped ? gameState.whitePlayerRemainingSeconds : gameState.blackPlayerRemainingSeconds"></time>
+                    <time class="time" [totalSeconds]="gameState.isBoardFlipped ? gameState.whitePlayerRemainingSeconds : gameState.blackPlayerRemainingSeconds"></time>
                 </div>
             </div>
             <material 
                 [materialList]="gameState.whiteLostMaterialList"
                 [enemyMaterialList]="gameState.blackLostMaterialList"
                 [isWhite]="white"
-                [isBoardFlipped]='isBoardFlipped'
+                [isBoardFlipped]='gameState.isBoardFlipped'
                 [board]='gameState.board'>
             </material>
             <div>
                 <chess-board 
                     [board]="gameState.board" 
                     [isEditMode]="isEditMode" 
-                    [isBoardFlipped]="isBoardFlipped"
-                    [legalMoves]="legalMoves"
+                    [isBoardFlipped]="gameState.isBoardFlipped"
+                    [legalMoves]="gameState.legalMoves"
                     [turnHistory]="gameState.turnHistory"
-                    [isCheck]="isCheck"
+                    [isCheck]="gameState.isCheck"
                     [isWhiteMove]="gameState.isWhiteToMove"
                     (piecePlaced)="onPiecePlaced($event)" 
                     (pieceRemoved)="onPieceRemoved($event)"
@@ -53,17 +56,17 @@
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="player-name">{{ isBoardFlipped ? gameState.gameSettings.blackPlayerName : gameState.gameSettings.whitePlayerName }}</div>
+                    <div class="player-name">{{ gameState.isBoardFlipped ? gameState.gameSettings.blackPlayerName : gameState.gameSettings.whitePlayerName }}</div>
                 </div>
                 <div *ngIf="gameState.gameSettings.isRealTime" class="col-md-6">
-                    <time class="time" [totalSeconds]="isBoardFlipped ? gameState.blackPlayerRemainingSeconds : gameState.whitePlayerRemainingSeconds"></time>
+                    <time class="time" [totalSeconds]="gameState.isBoardFlipped ? gameState.blackPlayerRemainingSeconds : gameState.whitePlayerRemainingSeconds"></time>
                 </div>
             </div>
             <material 
                 [materialList]="gameState.blackLostMaterialList"
                 [enemyMaterialList]="gameState.whiteLostMaterialList"
                 [isWhite]="!white"
-                [isBoardFlipped]='isBoardFlipped'
+                [isBoardFlipped]='gameState.isBoardFlipped'
                 [board]='gameState.board'>
             </material>
         </div>

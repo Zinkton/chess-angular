@@ -19,11 +19,10 @@ export class ChessComponent {
     isEditMode: boolean;
     selectedEditPiece: string;
     importContent: string;
-    isBoardFlipped: boolean;
-    legalMoves: Array<string>;
     gameTimer: any;
-    isCheck: boolean;
     white: boolean;
+    lastWhite: boolean;
+    gameStateStack: Array<string>;
 
     constructor(
         private logicService: LogicService,
@@ -33,10 +32,9 @@ export class ChessComponent {
         this.gameState = this.initGameState();
         this.isEditMode = false;
         this.selectedEditPiece = null;
-        this.isBoardFlipped = false;
-        this.legalMoves = null;
-        this.isCheck = false;
         this.white = true;
+        this.lastWhite = null;
+        this.gameStateStack = null
     }
 
     toggleEdit() {
@@ -56,6 +54,9 @@ export class ChessComponent {
         gameState.isBlackQueenCastleAllowed = true;
         gameState.isWhiteToMove = true;
         gameState.isGameOver = true;
+        gameState.isBoardFlipped = false;
+        gameState.legalMoves = null;
+        gameState.isCheck = false;
         gameState.board = Constants.ClearBoard.slice();
         gameState.gameSettings = this.initGameSettings();
 
@@ -130,7 +131,13 @@ export class ChessComponent {
     }
 
     onFlipBoardClick() {
-        this.isBoardFlipped = !this.isBoardFlipped;
+        this.gameState.isBoardFlipped = !this.gameState.isBoardFlipped;
+    }
+
+    onTakeBackClick() {
+        this.logicService.reset();
+        const last_state = this.gameStateStack.pop()
+        this.gameState = JSON.parse(last_state)
     }
 
     playFromPosition() {
@@ -141,14 +148,41 @@ export class ChessComponent {
         this.gameState.whiteLostMaterialList = new Array<string>();
         this.gameState.blackLostMaterialList = new Array<string>();
         this.logicService.reset();
-        this.legalMoves = this.logicService.getLegalMoves(this.gameState);
-        this.aiService.getMove(this.gameState, this.legalMoves)?.then((response: MoveResponse) => {
+        this.gameState.legalMoves = this.logicService.getLegalMoves(this.gameState);
+        this.aiService.getMove(this.gameState, this.gameState.legalMoves)?.then((response: MoveResponse) => {
             this.onPieceMoved(response.move, true);
         });
     }
 
     startGame(settings) {
         this.gameState.gameSettings = settings;
+
+        if (settings.blackPlayerAiEndpoint == "" && settings.whitePlayerAiEndpoint == "") {
+            settings.isCasual = true;
+        }
+
+        if (settings.isCasual) {
+            if (this.lastWhite == null) {
+                if (Math.random() < 0.5) {
+                    this.lastWhite = false;
+                } else {
+                    this.lastWhite = true;
+                }
+            }
+
+            if (this.lastWhite) {
+                settings.blackPlayerAiEndpoint = "http://localhost:8000/";
+                settings.whitePlayerAiEndpoint = "";
+                this.gameState.isBoardFlipped = false;
+            } else {
+                settings.blackPlayerAiEndpoint = "";
+                settings.whitePlayerAiEndpoint = "http://localhost:8000/";
+                this.gameState.isBoardFlipped = true;
+            }
+
+            this.lastWhite = !this.lastWhite;
+        }
+
         this.gameState.turnHistory = new Array<string>();
         this.gameState.isBlackKingCastleAllowed = true;
         this.gameState.isBlackQueenCastleAllowed = true;
@@ -168,9 +202,10 @@ export class ChessComponent {
         }
 
         this.logicService.reset();
-        this.legalMoves = this.logicService.getLegalMoves(this.gameState);
-        this.isCheck = this.logicService.isCheck(this.gameState);
-        this.aiService.getMove(this.gameState, this.legalMoves)?.then((response: MoveResponse) => {
+        this.gameState.legalMoves = this.logicService.getLegalMoves(this.gameState);
+        this.gameState.isCheck = this.logicService.isCheck(this.gameState);
+        this.gameStateStack = [JSON.stringify(this.gameState)]
+        this.aiService.getMove(this.gameState, this.gameState.legalMoves)?.then((response: MoveResponse) => {
             this.onPieceMoved(response.move, true);
         });
 
@@ -187,8 +222,8 @@ export class ChessComponent {
             let source = Constants.Squares.indexOf(move.slice(0, 2));
             let destination = Constants.Squares.indexOf(move.slice(2, 4));
 
-            for (let i = 0; i < this.legalMoves.length; i++) {
-                let legalMove = this.legalMoves[i];
+            for (let i = 0; i < this.gameState.legalMoves.length; i++) {
+                let legalMove = this.gameState.legalMoves[i];
 
                 if (move.length == 4 && move == legalMove.slice(2, 6)) {
                     move = legalMove;
@@ -213,17 +248,19 @@ export class ChessComponent {
                     }
                 }
             }
+        } else {
+            this.gameStateStack.push(JSON.stringify(this.gameState))
         }
 
         this.logicService.makeMove(this.gameState, move);
-        this.legalMoves = this.logicService.getLegalMoves(this.gameState);
-        this.isCheck = this.logicService.isCheck(this.gameState);
+        this.gameState.legalMoves = this.logicService.getLegalMoves(this.gameState);
+        this.gameState.isCheck = this.logicService.isCheck(this.gameState);
         if (this.gameState.isGameOver) {
             if (this.gameTimer) {
                 clearInterval(this.gameTimer);
             }
-        } else if (this.legalMoves?.length > 1) {
-            this.aiService.getMove(this.gameState, this.legalMoves)?.then((response: MoveResponse) => {
+        } else if (this.gameState.legalMoves?.length > 1) {
+            this.aiService.getMove(this.gameState, this.gameState.legalMoves)?.then((response: MoveResponse) => {
                 this.onPieceMoved(response.move, true);
             });
             this.startTimer();

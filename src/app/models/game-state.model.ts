@@ -15,4 +15,7 @@ export class GameState {
     public isWhiteToMove: boolean;
     public isGameOver: boolean;
     public winner: string;
+    public isBoardFlipped: boolean;
+    public legalMoves: Array<string>;
+    public isCheck: boolean;
 }
