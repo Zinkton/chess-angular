@@ -10,9 +10,11 @@ export class NewGameFormComponent implements OnInit {
   @Output() startGame = new EventEmitter<GameSettings>();
 
   gameSettings: GameSettings;
+  isAdvanced: boolean;
   
   ngOnInit() {
     this.gameSettings = this.initSettings();
+    this.isAdvanced = false;
   }
 
   initSettings(): GameSettings {
@@ -27,6 +29,7 @@ export class NewGameFormComponent implements OnInit {
     gameSettings.blackPlayerName = "Player 2";
     gameSettings.blackPlayerAiEndpoint = "";
     gameSettings.isCasual = false;
+    gameSettings.depth = 0;
 
     return gameSettings;
   }
@@ -64,6 +67,15 @@ export class NewGameFormComponent implements OnInit {
   }
 
   onStartGameClick() {
+    this.startGame.next(this.gameSettings);
+  }
+
+  onAdvancedClick() {
+    this.isAdvanced = true;
+  }
+
+  onDifficultyClick(depth) {
+    this.gameSettings.depth = depth;
     this.startGame.next(this.gameSettings);
   }
 }

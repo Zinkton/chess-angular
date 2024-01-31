@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { GameState } from '../models/game-state.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MoveRequest } from '../models/move-request.model';
-import { empty } from 'rxjs';
 import { Constants } from '../constants/constants';
 
 @Injectable({
@@ -11,13 +10,14 @@ import { Constants } from '../constants/constants';
 export class AiService {
     httpOptions = {
         headers: new HttpHeaders({ 
-          'Access-Control-Allow-Origin':'*'
+          'Access-Control-Allow-Origin':'*',
+          'Content-Type': 'application/json'
         })
     };
 
     constructor(private http: HttpClient) { }
 
-    getMove(gameState: GameState, legalMoves: Array<string>) {
+    getMove(gameState: GameState) {
         let endpoint = gameState.isWhiteToMove ? gameState.gameSettings.whitePlayerAiEndpoint : gameState.gameSettings.blackPlayerAiEndpoint;
 
         let moveRequest = new MoveRequest();
@@ -25,6 +25,8 @@ export class AiService {
         moveRequest.incrementSeconds = gameState.gameSettings.incrementSeconds;
         moveRequest.isRealTime = gameState.gameSettings.isRealTime;
         moveRequest.remainingSeconds = gameState.isWhiteToMove ? gameState.whitePlayerRemainingSeconds : gameState.blackPlayerRemainingSeconds;
+        moveRequest.isCasual = gameState.gameSettings.isCasual;
+        moveRequest.depth = gameState.gameSettings.depth;
 
         if (endpoint) {
             return this.http.post(endpoint, moveRequest, this.httpOptions).toPromise();

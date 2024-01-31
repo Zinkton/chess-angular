@@ -8,4 +8,5 @@ export class GameSettings {
     public blackPlayerName: string;
     public blackPlayerAiEndpoint: string;
     public isCasual: boolean;
+    public depth: number;
 }

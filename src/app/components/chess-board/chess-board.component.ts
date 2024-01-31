@@ -15,6 +15,7 @@ export class ChessBoardComponent implements OnInit, OnChanges {
     @Input() turnHistory: Array<string>;
     @Input() isCheck: boolean;
     @Input() isWhiteMove: boolean;
+    @Input() isGameOver: boolean;
     @Output() piecePlaced = new EventEmitter<string>();
     @Output() pieceRemoved = new EventEmitter<string>();
     @Output() pieceMoved = new EventEmitter<string>();

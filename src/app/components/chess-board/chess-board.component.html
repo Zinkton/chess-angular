@@ -29,7 +29,8 @@
                         'selected-piece': i == clickedSquare, 
                         'legal-square': legalSquares.includes(i), 
                         'last-move': lastMoveSquares.includes(i),
-                        'check': i == checkedSquare}"
+                        'check': i == checkedSquare,
+                        'checkmate': i == checkedSquare && isGameOver }"
             id="{{squares[i]}}" 
             (drop)="onDrop($event, squares[i])" 
             (dragover)="onDragover($event)"

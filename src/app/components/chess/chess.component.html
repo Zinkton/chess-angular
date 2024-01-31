@@ -4,9 +4,9 @@
             <div>
                 <button type="button" class="btn btn-secondary action-button" data-toggle="modal" data-target="#newGameModal">New Game</button>
             </div>
-            <div>
+            <!-- <div>
                 <button type="button" class="btn btn-secondary action-button">Pause Game</button>
-            </div>
+            </div> -->
             <div>
                 <button type="button" class="btn btn-secondary action-button" [ngClass]="{'active': isEditMode}" (click)="toggleEdit()">Edit Position</button>
             </div>
@@ -49,6 +49,7 @@
                     [turnHistory]="gameState.turnHistory"
                     [isCheck]="gameState.isCheck"
                     [isWhiteMove]="gameState.isWhiteToMove"
+                    [isGameOver]="this.gameState.isGameOver"
                     (piecePlaced)="onPiecePlaced($event)" 
                     (pieceRemoved)="onPieceRemoved($event)"
                     (pieceMoved)="onPieceMoved($event, false)">

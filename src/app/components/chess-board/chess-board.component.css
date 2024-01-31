@@ -52,5 +52,9 @@
 }
 
 .check {
-    background: rgba(100, 100, 255, 0.5)
+    background: rgba(255, 255, 50, 0.5)
+}
+
+.checkmate {
+    background: rgba(50, 50, 255, 0.5)
 }

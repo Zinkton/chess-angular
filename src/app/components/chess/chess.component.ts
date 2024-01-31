@@ -149,7 +149,7 @@ export class ChessComponent {
         this.gameState.blackLostMaterialList = new Array<string>();
         this.logicService.reset();
         this.gameState.legalMoves = this.logicService.getLegalMoves(this.gameState);
-        this.aiService.getMove(this.gameState, this.gameState.legalMoves)?.then((response: MoveResponse) => {
+        this.aiService.getMove(this.gameState)?.then((response: MoveResponse) => {
             this.onPieceMoved(response.move, true);
         });
     }
@@ -205,7 +205,7 @@ export class ChessComponent {
         this.gameState.legalMoves = this.logicService.getLegalMoves(this.gameState);
         this.gameState.isCheck = this.logicService.isCheck(this.gameState);
         this.gameStateStack = [JSON.stringify(this.gameState)]
-        this.aiService.getMove(this.gameState, this.gameState.legalMoves)?.then((response: MoveResponse) => {
+        this.aiService.getMove(this.gameState)?.then((response: MoveResponse) => {
             this.onPieceMoved(response.move, true);
         });
 
@@ -260,7 +260,7 @@ export class ChessComponent {
                 clearInterval(this.gameTimer);
             }
         } else if (this.gameState.legalMoves?.length > 1) {
-            this.aiService.getMove(this.gameState, this.gameState.legalMoves)?.then((response: MoveResponse) => {
+            this.aiService.getMove(this.gameState)?.then((response: MoveResponse) => {
                 this.onPieceMoved(response.move, true);
             });
             this.startTimer();
